@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, initial-scale=1.0, minimum-scale=1.0">
+    <title>Cyber Portfolio - Pedro Fabian Owono</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Font Awesome Icons -->
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Oxanium Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@400;700&display=swap" rel="stylesheet">
+    <!-- External Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://unpkg.com/@studio-freight/lenis@1.0.33/dist/lenis.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/TextPlugin.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/CSSRulePlugin.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/CSSPlugin.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/Draggable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/EaselPlugin.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/MotionPathPlugin.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/PixiPlugin.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://unpkg.com/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    
+</head>
+<body>
+
+
+   <!-- Add this right after the opening <body> tag -->
+    <!-- Cyber Intro Section -->
+    <div id="cyberIntro" class="cyber-intro">
+        <!-- Holographic Grid Background -->
+        <div class="cyber-time-container">
+            <div class="real-time-date"></div> <!-- Displays current date -->
+            <div class="real-time-clock"></div> <!-- Displays live clock -->
+            <div class="location">
+                <i class="fas fa-satellite"></i>
+                <span>KUALA LUMPUR, MY</span>
+            </div>
+        </div>
+
+        <!-- 3D Engineering Elements -->
+        <div class="engineering-elements">
+            <div class="rotating-gear"></div>
+            <div class="circuit-board"></div>
+            <div class="particle-beam"></div>
+        </div>
+
+        <!-- Main Intro Content -->
+        <div class="cyber-intro-content">
+            <!-- Updated Title -->
+            <h1 class="cyber-title glitch-layers" data-text="WELCOME TO MY PORTFOLIO">
+                <span class="cyber-cyan">WELCOME</span>
+                <span class="cyber-pink">TO MY</span>
+                <span class="cyber-cyan">PORTFOLIO</span>
+            </h1>
+
+            <!-- CTA Section -->
+            <div class="cyber-cta">
+                <div class="cyber-terminal">
+                    <div class="terminal-header">
+                        <span class="blink">system@portfolio:~</span>
+                    </div>
+                    <div class="terminal-body">
+                        <p class="typing-text">Initializing engineering portfolio...</p>
+                        <button id="enterWebsite" class="cyber-button-3d">
+                            <span class="button-hologram"></span>
+                            ACCESS FULL SYSTEMS
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Industrial HUD Elements -->
+        <div class="industrial-hud">
+            <div class="hud-element capacity-bar">
+                <div class="bar-fill"></div>
+                <span>SYSTEM CAPACITY</span>
+            </div>
+            <div class="hud-element coordinates">
+                <span>13°24'35"N 2°11'20"E</span>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Loading Screen -->
+    <div id="cyberLoad" class="cyber-loading">
+        <div class="loading-overlay"></div>
+        
+        <div class="industrial-loader">
+            <!-- Rotating Core -->
+            <div class="reactor-core">
+                <div class="core-inner"></div>
+                <div class="plasma-stream"></div>
+                <div class="rotating-ring"></div>
+            </div>
+            
+            <!-- Progress Elements -->
+            <div class="load-progress">
+                <div class="progress-bar">
+                    <div class="progress-fill"></div>
+                    <div class="progress-glitch"></div>
+                </div>
+                <div class="progress-text">
+                    <span class="percentage">0%</span>
+                    <span class="system-text">INITIALIZING MAIN SYSTEMS</span>
+                </div>
+            </div>
+            
+            <!-- Terminal Output -->
+            <div class="load-terminal">
+                <div class="terminal-output">
+                    <div class="line">> BOOTING INDUSTRIAL OS</div>
+                    <div class="line">> ENGAGING CORE REACTORS</div>
+                    <div class="line">> CALIBRATING SENSORS</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Audio Element -->
+        <audio id="loadSound" src="assets/sounds/relaxing-piano.mp3"></audio>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <a href="#" class="logo">PFO</a>
+        <button class="menu-toggle">
+            <i class="fas fa-bars"></i>
+        </button>
+        <ul class="nav-links">
+            <li><a href="#home">Home</a></li>
+            <li><a href="#projects">Projects</a></li>
+            <li><a href="#skills">Skills</a></li>
+            <li><a href="#experience">Experience</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+    </nav>
+
+
+  <!-- Cinematic Intro Section (above the hero) -->
+  <section id="cinematicIntro" class="intro-section section">
+    <!-- Layer 1: Distant Background -->
+    <div class="intro-layer layer-bg"></div>
+    <!-- Layer 3: Foreground & Title -->
+    <div class="intro-layer layer-front">
+      <h1 class="intro-title">Welcome to My Portfolio</h1>
+    </div>
+  </section>
+
+  
+  <!-- Hero Section (with single image or no image, up to you) -->
+  <section id="home" class="hero">
+    <div class="hero-content">
+      <div class="name-container">
+        <h1>Pedro Fabian Owono</h1>
+      </div>
+      
+      <p class="hero-description">
+        Bridging software solutions through innovative engineering 
+        and computational thinking.<br>
+      </p>
+      
+
+  
+      <div class="hero-links">
+        <a href="#projects" class="cyber-button">
+          <i class="fas fa-code"></i>
+          View Projects
+        </a>
+        <a href="#contact" class="cyber-button">
+          <i class="fas fa-envelope"></i>
+          Contact Me
+        </a>
+      </div>
+  
+    </div>
+  </section>
+
+  
+
+    
+    <script>
+    class Particle {
+        constructor(canvas, ctx) {
+            this.canvas = canvas;
+            this.ctx = ctx;
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height;
+            this.velocity = { x: (Math.random() - 0.5) * 0.5, y: (Math.random() - 0.5) * 0.5 };
+            this.radius = Math.random() * 2;
+            this.color = Math.random() > 0.5 ? 'rgba(0,243,255,0.8)' : 'rgba(255,0,255,0.8)';
+            this.rotation = Math.random() * Math.PI * 2;
+            this.symbols = ['<>', '{}', '[]', '01', '#/', '%%', '&&', '++', '==', '||'];
+        }
+
+        draw() {
+            this.ctx.save();
+            this.ctx.translate(this.x, this.y);
+            this.ctx.rotate(this.rotation);
+            this.ctx.fillStyle = this.color;
+            this.ctx.font = `${this.radius * 5}px 'Oxanium'`;
+            this.ctx.fillText(this.symbols[Math.floor(Math.random() * this.symbols.length)], 0, 0);
+            this.ctx.restore();
+        }
+
+        update() {
+            this.x += this.velocity.x;
+            this.y += this.velocity.y;
+            this.rotation += 0.02;
+
+            if (this.x > this.canvas.width + 20) this.x = -20;
+            if (this.x < -20) this.x = this.canvas.width + 20;
+            if (this.y > this.canvas.height + 20) this.y = -20;
+            if (this.y < -20) this.y = this.canvas.height + 20;
+        }
+    }
+
+    const initCanvas = () => {
+        const canvas = document.querySelector('.tech-canvas');
+        const ctx = canvas.getContext('2d');
+        const particles = [];
+        const particleCount = window.innerWidth < 768 ? 50 : 150;
+
+        const resizeCanvas = () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        };
+
+        const createParticles = () => {
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle(canvas, ctx));
+            }
+        };
+
+        const animate = () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+            requestAnimationFrame(animate);
+        };
+
+        window.addEventListener('resize', () => {
+            resizeCanvas();
+            particles.length = 0;
+            createParticles();
+        });
+
+        resizeCanvas();
+        createParticles();
+        animate();
+    };
+
+    document.addEventListener('DOMContentLoaded', initCanvas);
+    </script>
+
+
+
+    <section id="projects" class="projects-section">
+        <h2 class="section-title" data-cursor>Engineering Projects</h2>
+        <div class="projects-grid">
+            <!-- Machine Vision -->
+            <div class="project-card">
+                <div class="project-image" style="background-image: url('assets/images/project1MachineVision.jpg')"></div>
+                <div class="project-info">
+                    <h3>Machine Vision and Intelligence</h3>
+                    <div class="project-tech">
+                        <span class="tech-item">Python</span>
+                        <span class="tech-item">OpenCV</span>
+                        <span class="tech-item">TensorFlow</span>
+                    </div>
+                    <p>Developed a vision-based hand gesture recognition system using machine learning techniques.</p>
+                    <div class="project-links">
+                        <a href="https://github.com/Owono2001/Machine-Vision-and-Intelligence" target="_blank" class="project-link">
+                            <i class="fab fa-github"></i>
+                            Source Code
+                        </a>
+                    </div>
+                </div>
+            </div>
+    
+    
+            <!-- C++ Programming -->
+            <div class="project-card">
+                <div class="project-image" style="background-image: url('assets/images/project6Cpp.jpg')"></div>
+                <div class="project-info">
+                    <h3>OOP with C++ Programming</h3>
+                    <div class="project-tech">
+                        <span class="tech-item">C++</span>
+                        <span class="tech-item">OOP</span>
+                        <span class="tech-item">Inventory Management</span>
+                    </div>
+                    <p>Developed an inventory and purchase management system using encapsulation and polymorphism.</p>
+                    <div class="project-links">
+                        <a href="https://github.com/Owono2001/OOP-with-Cplusplus-Programming" target="_blank" class="project-link">
+                            <i class="fab fa-github"></i>
+                            Source Code
+                        </a>
+                    </div>
+                </div>
+            </div>
+    
+            <!-- DSP -->
+            <div class="project-card">
+                <div class="project-image" style="background-image: url('assets/images/project9DSP.jpg')"></div>
+                <div class="project-info">
+                    <h3>Digital Signal Processing</h3>
+                    <div class="project-tech">
+                        <span class="tech-item">MATLAB</span>
+                        <span class="tech-item">Signal Processing</span>
+                        <span class="tech-item">Filter Design</span>
+                    </div>
+                    <p>Analyzed and filtered noise using advanced DSP techniques.</p>
+                    <div class="project-links">
+                        <a href="https://github.com/Owono2001/Digital-Signal-Processing" target="_blank" class="project-link">
+                            <i class="fab fa-github"></i>
+                            Source Code
+                        </a>
+                    </div>
+                </div>
+            </div>
+    
+            <!-- VLSI -->
+            <div class="project-card">
+                <div class="project-image" style="background-image: url('assets/images/project18VLSI.jpg')"></div>
+                <div class="project-info">
+                    <h3>VLSI Report and Lab</h3>
+                    <div class="project-tech">
+                        <span class="tech-item">VHDL</span>
+                        <span class="tech-item">FPGA</span>
+                        <span class="tech-item">Digital Design</span>
+                    </div>
+                    <p>Designed VHDL-based digital components like multiplexers and counters.</p>
+                    <div class="project-links">
+                        <a href="https://github.com/Owono2001/VLSI-Report-and-Lab" target="_blank" class="project-link">
+                            <i class="fab fa-github"></i>
+                            Source Code
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="github-footer">
+                <p>Explore more engineering projects on my GitHub space</p>
+                <a href="https://github.com/Owono2001" target="_blank" class="cyber-button">
+                    <i class="fab fa-github"></i>
+                    View Full Portfolio
+                </a>
+            </div>
+    </section>
+
+    <section id="skills" class="skills-section">
+        <h2 class="section-title" data-cursor>{ CORE COMPETENCIES }</h2>
+        
+        <div class="cyber-skills-grid">
+            <!-- Technical Skills -->
+            <div class="skill-matrix">
+                <div class="matrix-header">
+                    <i class="fas fa-microchip matrix-icon"></i>
+                    <h3>TECHNICAL ARCHIVE</h3>
+                    <div class="matrix-glitch"></div>
+                </div>
+                
+                <div class="skill-cluster">
+                    <div class="skill-node">
+                        <div class="node-progress" style="--progress: 90%">
+                            <div class="progress-wave"></div>
+                        </div>
+                        <div class="node-info">
+                            <span class="node-category">PROGRAMMING</span>
+                            <span class="node-skills">Python · C · C++ · Java · R</span>
+                        </div>
+                    </div>
+    
+                    <div class="skill-node">
+                        <div class="node-progress" style="--progress: 85%">
+                            <div class="progress-wave"></div>
+                        </div>
+                        <div class="node-info">
+                            <span class="node-category">WEB SYSTEMS</span>
+                            <span class="node-skills">HTML · CSS · Figma · JavaScript</span>
+                        </div>
+                    </div>
+    
+                    <div class="skill-node">
+                        <div class="node-progress" style="--progress: 80%">
+                            <div class="progress-wave"></div>
+                        </div>
+                        <div class="node-info">
+                            <span class="node-category">EMBEDDED TECH</span>
+                            <span class="node-skills">ROS2 · Raspberry Pi · Arduino</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    
+            <!-- Core Competencies -->
+            <div class="skill-matrix">
+                <div class="matrix-header">
+                    <i class="fas fa-brain matrix-icon"></i>
+                    <h3>OPERATIONAL DOMAINS</h3>
+                    <div class="matrix-glitch"></div>
+                </div>
+                
+                <div class="competency-grid">
+                    <div class="competency-tag">
+                        <span>Autonomous Robotics</span>
+                        <div class="tag-pulse"></div>
+                    </div>
+                    <div class="competency-tag">
+                        <span>3D Prototyping</span>
+                        <div class="tag-pulse"></div>
+                    </div>
+                    <div class="competency-tag">
+                        <span>IoT Architecture</span>
+                        <div class="tag-pulse"></div>
+                    </div>
+                    <div class="competency-tag">
+                        <span>System Optimization</span>
+                        <div class="tag-pulse"></div>
+                    </div>
+                </div>
+            </div>
+    
+            <!-- Notable Achievements -->
+            <div class="skill-matrix">
+                <div class="matrix-header">
+                    <i class="fas fa-trophy matrix-icon"></i>
+                    <h3>MISSION SUCCESSES</h3>
+                    <div class="matrix-glitch"></div>
+                </div>
+                
+                <div class="achievement-list">
+                    <div class="achievement-badge">
+                        <div class="badge-core"></div>
+                        <span>Car Rental System (Java)</span>
+                        <div class="badge-ribbon"></div>
+                    </div>
+                    <div class="achievement-badge">
+                        <div class="badge-core"></div>
+                        <span>Gesture Recognition AI</span>
+                        <div class="badge-ribbon"></div>
+                    </div>
+                    <div class="achievement-badge">
+                        <div class="badge-core"></div>
+                        <span>Advanced DSP Systems</span>
+                        <div class="badge-ribbon"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- EXPERIENCE SECTION -->
+    <!-- EXPERIENCE SECTION -->
+    <section id="experience" class="experience-section">
+        <h2 class="section-title" data-cursor>[ OPERATIONAL HISTORY ]</h2>
+        
+        <div class="cyber-timeline">
+            <!-- Timeline Connector -->
+            <div class="timeline-line"></div>
+
+            <div class="experience-card">
+                <div class="card-hologram"></div>
+                <div class="timeline-marker">
+                    <div class="pulse-core"></div>
+                    <i class="fas fa-microchip"></i>
+                </div>
+                
+                <div class="experience-header">
+                    <div class="org-logo">
+                        <img src="assets/images/apu_logo.png" alt="APU Logo" class="holographic-logo">
+                        <div class="logo-glitch"></div>
+                    </div>
+                    <div class="role-info">
+                        <h3 class="cyber-role">ENGINEER INTERN</h3>
+                        <div class="org-details">
+                            <span class="cyber-org">ASIA PACIFIC UNIVERSITY</span>
+                            <span class="cyber-divider">//</span>
+                            <span class="cyber-tag">INTERNSHIP PROTOCOL</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mission-details">
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <span class="detail-label">ACTIVATION PERIOD</span>
+                            <span class="detail-value">JUN 2024 - SEP 2024</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">OPERATION ZONE</span>
+                            <span class="detail-value">MALAYSIA HQ</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">CORE FUNCTIONS</span>
+                            <div class="tech-tags">
+                                <span class="tech-tag">3D System Fabrication</span>
+                                <span class="tech-tag">Motion Vector Mapping</span>
+                                <span class="tech-tag">Kinematic Optimization</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="achievement-list">
+                        <div class="achievement-item">
+                            <i class="fas fa-terminal achievement-icon"></i>
+                            <span>Enhanced robotic operational parameters by 37% through dynamic motion recalibration</span>
+                        </div>
+                        <div class="achievement-item">
+                            <i class="fas fa-terminal achievement-icon"></i>
+                            <span>Spearheaded multi-axis printing initiatives for complex component fabrication</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="about" class="about-section">
+        <h2 class="section-title" data-cursor>About The Engineer</h2>
+        <div class="about-content">
+            <img src="assets/images/profile2.jpg" alt="Pedro Fabian Owono" class="profile-pic">
+            <div class="about-container">
+                <div class="cyber-heading">
+                    <h2 class="cyber-glow">Pedro Fabian <span class="cyber-underscore">Owono</span></h2>
+                    <div class="cyber-underline"></div>
+                </div>
+                
+                <div class="cyber-bio">
+                    <p class="cyber-text animate-text">
+                        <span class="cyber-icon"><i class="fas fa-terminal"></i></span>
+                        <span class="highlight">>_ PROFILE STATUS: [OPERATIONAL]</span>
+                    </p>
+                    
+                    <div class="cyber-grid">
+                        <!-- Updated Education Section -->
+                        <div class="cyber-line">
+                            <span class="tag">$ education</span>
+                            <span class="value">
+                                <div class="edu-track">
+                                    <span class="edu-degree">BEng Computer Engineering (Hons)</span>
+                                    <span class="edu-meta">
+                                        <i class="fas fa-map-marker-alt cyber-pink"></i> Asia Pacific University of Technology & Innovation
+                                    </span>
+                                </div>
+                                <div class="edu-track">
+                                    <span class="edu-degree">MSc of Engineering</span>
+                                    <span class="edu-meta">
+                                        <i class="fas fa-map-marker-alt cyber-pink"></i> De Montfort University (DMU), UK
+                                    </span>
+                                    <div class="graduation-progress">
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: 75%"></div>
+                                        </div>
+                                        <span class="expected-graduation">
+                                            <i class="fas fa-hourglass-half"></i> Expected Completion: September 2025
+                                        </span>
+                                    </div>
+                                </div>
+                            </span>
+                        </div>
+                        
+                        <!-- Specialties Section -->
+                        <div class="cyber-line">
+                            <span class="tag">$ specialties</span>
+                            <span class="value">
+                                <div class="skill-pills">
+                                    <span class="skill-pill cyber-cyan-bg">Programming</span>
+                                    <span class="skill-pill cyber-pink-bg">IoT Architecture</span>
+                                    <span class="skill-pill cyber-cyan-bg">Software Development</span>
+                                </div>
+                            </span>
+                        </div>
+                        
+                        <!-- Expertise Section -->
+                        <div class="cyber-line">
+                            <span class="tag">$ expertise</span>
+                            <span class="value">
+                                <div class="expertise-grid">
+                                    <div class="expertise-item">
+                                        <i class="fas fa-microchip"></i>
+                                        Embedded Systems
+                                    </div>
+                                    <div class="expertise-item">
+                                        <i class="fas fa-network-wired"></i>
+                                        System Integration
+                                    </div>
+                                    <div class="expertise-item">
+                                        <i class="fas fa-layer-group"></i>
+                                        Full-Stack Solutions
+                                    </div>
+                                </div>
+                            </span>
+                        </div>
+                    </div>
+    
+                    <!-- Mission Statement -->
+                    <div class="mission-statement">
+                        <div class="mission-glow"></div>
+                        <p class="cyber-text">
+                            <span class="cyber-icon"><i class="fas fa-rocket pulse"></i></span>
+                            <span class="cyber-glow">Primary Objective:</span> Architecting 
+                            <span class="cyber-cyan">scalable systems</span> that synergize 
+                            <span class="highlight">cutting-edge software</span> with 
+                            <span class="cyber-pink">advanced hardware solutions</span>, 
+                            driving technological innovation through 
+                            <span class="highlight">full-stack engineering excellence</span>.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    
+
+<!-- Updated Contact Section -->
+<section id="contact" class="contact-section">
+    <div class="cyber-grid-overlay"></div>
+    <h2 class="section-title" data-cursor>[CONNECT]</h2>
+    
+    <div class="contact-container">
+        <div class="contact-header">
+            <div class="holographic-icon">
+                <i class="fas fa-satellite-dish"></i>
+                <div class="hologram-effect"></div>
+            </div>
+            <p class="comms-status">Secure Channel: <span class="cyber-cyan">ENCRYPTED</span></p>
+        </div>
+
+        <form id="cyberForm" action="https://formspree.io/f/xqaezjbb" method="POST" class="cyber-form">
+            <div class="form-row">
+                <div class="input-container">
+                    <input type="text" id="name" name="name" required>
+                    <label for="name">> ENTER OPERATOR NAME</label>
+                    <div class="input-glitch"></div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="input-container">
+                    <input type="email" id="email" name="_replyto" required>
+                    <label for="email">> INPUT COMMS FREQUENCY</label>
+                    <div class="input-glitch"></div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="input-container">
+                    <textarea id="message" name="message" rows="5" required></textarea>
+                    <label for="message">> TRANSMISSION CONTENT</label>
+                    <div class="input-glitch"></div>
+                    <div class="char-counter"><span>0</span>/500</div>
+                </div>
+            </div>
+
+            <button type="submit" class="cyber-button">
+                <span class="btn-content">INITIATE TRANSMISSION</span>
+                <div class="btn-overlay"></div>
+                <div class="btn-lines"></div>
+            </button>
+        </form>
+
+        <div class="alternative-comms">
+            <h3 class="comms-title">DIRECT FREQUENCIES</h3>
+            <div class="comms-channels">
+                <a href="mailto:owonoondomangue@gmail.com" class="comms-link">
+                    <i class="fas fa-envelope"></i>
+                    <span>SECURE MAIL</span>
+                    <div class="comms-hover"></div>
+                </a>
+                <a href="https://www.linkedin.com/in/pedrofondomangue/" class="comms-link" target="_blank">
+                    <i class="fab fa-linkedin"></i>
+                    <span>PROFESSIONAL CHANNEL</span>
+                    <div class="comms-hover"></div>
+                </a>
+                <a href="https://github.com/Owono2001" class="comms-link" target="_blank">
+                    <i class="fab fa-github"></i>
+                    <span>CODE REPOSITORY</span>
+                    <div class="comms-hover"></div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="transmission-success">
+        <div class="success-content">
+            <i class="fas fa-check-circle"></i>
+            <p>TRANSMISSION SUCCESSFUL</p>
+        </div>
+    </div>
+    
+</section>
+
+
+<!-- In your HTML -->
+<!-- Place this where you want the globe section -->
+<section id="cyber-globe" class="cyber-globe-section">
+    <div class="globe-container">
+      <canvas id="globeCanvas"></canvas>
+      <div class="globe-overlay">
+        <h2 class="section-title">GLOBAL NETWORK OPERATIONS</h2>
+            <div class="globe-stats">
+                <div class="stat-item">
+                    <div class="stat-value" data-count="154">0</div>
+                    <div class="stat-label">ACTIVE NODES</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" data-count="37">0</div>
+                    <div class="stat-label">COUNTRIES ONLINE</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+    <section class="social-media-section">
+        <h3 class="social-title">Connect with Me on Social Media</h3>
+        <div class="social-media-links">
+            <a href="https://www.instagram.com/owono2001/?hl=en" target="_blank" title="Instagram"><i class="fab fa-instagram"></i></a>
+            <a href="https://www.facebook.com/owono2001" target="_blank" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+            <a href="https://www.snapchat.com/add/pedromangue24" target="_blank" title="Snapchat"><i class="fab fa-snapchat-ghost"></i></a>
+            <a href="https://open.spotify.com/playlist/1ovl1EfATYpVidXAP4d0nH?utm_medium=share&utm_source=linktree" target="_blank" title="Spotify"><i class="fab fa-spotify"></i></a>
+            <a href="https://x.com/owono_pedro" target="_blank" title="Twitter"><i class="fab fa-twitter"></i></a>
+            <a href="https://discord.com/channels/@me" target="_blank" title="Discord"><i class="fab fa-discord"></i></a>
+        </div>
+    </section>
+</section>
+
+    <!-- Load JavaScript at bottom -->
+    <script src="app.js"></script>
+    <footer>
+        <p>&copy; 2025 Pedro Fabian Owono. All Rights Reserved.</p>
+    </footer>
+</body>
+</html>

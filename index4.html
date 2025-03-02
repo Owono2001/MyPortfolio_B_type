@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pedro Fabian Owono | Engineering Portfolio</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@300;400;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0a192f;
+            --secondary: #172a45;
+            --accent: #64ffda;
+            --text: #ccd6f6;
+            --dark: #020c1b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            background: var(--primary);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Navbar */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(10, 25, 47, 0.95);
+            padding: 1.5rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(100,255,218,0.1);
+        }
+
+        .logo {
+            font-family: 'Roboto Condensed', sans-serif;
+            font-size: 1.8rem;
+            color: var(--accent);
+            letter-spacing: 1px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+        }
+
+        .nav-links a {
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 500;
+            position: relative;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background: var(--accent);
+            transition: width 0.3s;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent);
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 0 5%;
+            background: linear-gradient(180deg, var(--primary) 0%, var(--dark) 100%);
+        }
+
+        .hero-content {
+            max-width: 800px;
+        }
+
+        .hero-subtitle {
+            color: var(--accent);
+            font-family: 'Roboto Condensed', sans-serif;
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.1;
+            color: var(--text);
+        }
+
+        .hero-description {
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin-bottom: 2rem;
+            color: #8892b0;
+        }
+
+        /* Projects Section */
+        .projects-section {
+            padding: 8rem 5%;
+            background: var(--secondary);
+        }
+
+        .section-title {
+            font-family: 'Roboto Condensed', sans-serif;
+            font-size: 2.5rem;
+            color: var(--text);
+            margin-bottom: 4rem;
+            text-align: center;
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2.5rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .project-card {
+            background: var(--primary);
+            border-radius: 4px;
+            padding: 1.5rem;
+            transition: transform 0.3s ease;
+            border: 1px solid rgba(100,255,218,0.1);
+            position: relative;
+        }
+
+        .project-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .project-image {
+            height: 200px;
+            background-size: cover;
+            background-position: center;
+            border-radius: 3px;
+            margin-bottom: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .project-info h3 {
+            font-family: 'Roboto Condensed', sans-serif;
+            color: var(--accent);
+            margin-bottom: 1rem;
+            font-size: 1.4rem;
+        }
+
+        .project-info p {
+            color: #8892b0;
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+
+        .project-tech {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .tech-item {
+            background: rgba(100,255,218,0.1);
+            color: var(--accent);
+            padding: 0.4rem 0.8rem;
+            border-radius: 3px;
+            font-size: 0.9rem;
+        }
+
+        .project-links {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .project-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text);
+            text-decoration: none;
+            padding: 0.8rem 1.5rem;
+            border: 1px solid var(--accent);
+            border-radius: 3px;
+            transition: all 0.3s ease;
+        }
+
+        .project-link:hover {
+            background: rgba(100,255,218,0.1);
+            transform: translateY(-2px);
+        }
+
+        /* Skills Section */
+        .skills-section {
+            padding: 6rem 5%;
+            background: var(--primary);
+        }
+
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .skill-category {
+            background: var(--secondary);
+            padding: 2rem;
+            border-radius: 4px;
+            border: 1px solid rgba(100,255,218,0.1);
+        }
+
+        .skill-category h3 {
+            font-family: 'Roboto Condensed', sans-serif;
+            color: var(--accent);
+            margin-bottom: 1.5rem;
+        }
+
+        .skill-list {
+            list-style: none;
+        }
+
+        .skill-item {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 1rem;
+            color: #8892b0;
+        }
+
+        /* Contact Section */
+        .contact-section {
+            padding: 6rem 5%;
+            background: var(--secondary);
+            text-align: center;
+        }
+
+        .contact-description {
+            color: #8892b0;
+            font-size: 1.2rem;
+            margin-bottom: 3rem;
+        }
+
+        .contact-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .form-row {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        .form-row label {
+            display: block;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 0.8rem;
+            background: var(--primary);
+            border: 1px solid rgba(100,255,218,0.2);
+            border-radius: 4px;
+            color: var(--text);
+            font-size: 1rem;
+        }
+
+        .btn {
+            background: var(--accent);
+            color: var(--dark);
+            padding: 0.8rem 2rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .btn:hover {
+            background: rgba(100,255,218,0.8);
+        }
+
+        /* Social Media Section */
+        .social-media-section {
+            margin-top: 4rem;
+            padding: 2rem 0;
+        }
+
+        .social-title {
+            font-size: 1.8rem;
+            color: var(--accent);
+            margin-bottom: 2rem;
+        }
+
+        .social-media-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+        }
+
+        .social-media-links a {
+            font-size: 2rem;
+            color: var(--text);
+            transition: color 0.3s ease;
+        }
+
+        .social-media-links a:hover {
+            color: var(--accent);
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* General Fade-in Animation */
+    .fade {
+        animation: fadeIn 1s ease-in-out;
+    }
+
+    /* Slideshow Container */
+    .slideshow-container {
+        max-width: 100%;
+        position: relative;
+        margin: auto;
+    }
+
+    /* Slide Elements */
+    .slide {
+        display: none;
+        position: relative;
+    }
+
+    /* Animation Keyframes */
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    /* Smooth transitions for project images */
+    .project-card {
+        transition: transform 0.4s, opacity 0.4s ease-in-out;
+    }
+
+    .project-card:hover {
+        transform: translateY(-10px);
+    }
+
+    /* Video Styling */
+    video {
+        width: 100%;
+        height: auto;
+        border-radius: 6px;
+    }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">PFO</div>
+        <div class="nav-links">
+            <a href="#home">Home</a>
+            <a href="#projects">Projects</a>
+            <a href="#skills">Skills</a>
+            <a href="#experience">Experience</a>
+            <a href="#about">About</a>
+            <a href="#contact">Contact</a>
+        </div>
+    </nav>
+
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <p class="hero-subtitle">Computer Engineering Student</p>
+            <h1>Pedro Fabian Owono</h1>
+            <p class="hero-description">
+                Bridging hardware and software solutions through innovative engineering 
+                and computational thinking. Passionate about robotics, embedded systems, 
+                and full-stack development.
+            </p>
+            <div class="project-links">
+                <a href="#projects" class="project-link">
+                    <i class="fas fa-code"></i>
+                    View Projects
+                </a>
+                <a href="#contact" class="project-link">
+                    <i class="fas fa-envelope"></i>
+                    Contact Me
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section id="projects" class="projects-section">
+        <h2 class="section-title">Engineering Projects</h2>
+        <div class="projects-grid">
+            <!-- Machine Vision Project -->
+            <div class="project-card">
+                <div class="project-image" style="background-image: url('assets/project1MachineVision.jpg')"></div>
+                <div class="project-info">
+                    <h3>Machine Vision System</h3>
+                    <div class="project-tech">
+                        <span class="tech-item">Python</span>
+                        <span class="tech-item">OpenCV</span>
+                        <span class="tech-item">TensorFlow</span>
+                    </div>
+                    <p>Developed a real-time hand gesture recognition system using convolutional neural networks and computer vision techniques.</p>
+                    <div class="project-links">
+                        <a href="https://github.com/Owono2001/Machine-Vision-and-Intelligence" target="_blank" class="project-link">
+                            <i class="fab fa-github"></i>
+                            Source Code
+                        </a>
+                    </div>
+                </div>
+            </div>
+    
+            <!-- Communication Engineering -->
+            <div class="project-card">
+                <div class="project-image" style="background-image: url('assets/project2CEP.jpg')"></div>
+                <div class="project-info">
+                    <h3>Communication Engineering Principles</h3>
+                    <div class="project-tech">
+                        <span class="tech-item">MATLAB</span>
+                        <span class="tech-item">Simulink</span>
+                    </div>
+                    <p>Designed and simulated amplitude modulation techniques using MATLAB and Simulink.</p>
+                    <div class="project-links">
+                        <a href="https://github.com/Owono2001/Communication-Engineering-Principles" target="_blank" class="project-link">
+                            <i class="fab fa-github"></i>
+                            Source Code
+                        </a>
+                    </div>
+                </div>
+            </div>
+    
+            <!-- Control Engineering -->
+            <div class="project-card">
+                <div class="project-image" style="background-image: url('assets/project3CE.jpg')"></div>
+                <div class="project-info">
+                    <h3>Control Engineering</h3>
+                    <div class="project-tech">
+                        <span class="tech-item">MATLAB</span>
+                        <span class="tech-item">Simulink</span>
+                    </div>
+                    <p>Created a vibration control system for a washing machine using MATLAB and Simulink.</p>
+                    <div class="project-links">
+                        <a href="https://github.com/Owono2001/Control-Engineering" target="_blank" class="project-link">
+                            <i class="fab fa-github"></i>
+                            Source Code
+                        </a>
+                    </div>
+                </div>
+            </div>
+    
+            <!-- OOP with Java -->
+            <div class="project-card">
+                <div class="project-image" style="background-image: url('assets/project4Java.jpg')"></div>
+                <div class="project-info">
+                    <h3>OOP with Java</h3>
+                    <div class="project-tech">
+                        <span class="tech-item">Java</span>
+                        <span class="tech-item">NetBeans</span>
+                    </div>
+                    <p>Built a Car Rental System with admin and customer interfaces using Java and NetBeans.</p>
+                    <div class="project-links">
+                        <a href="https://github.com/Owono2001/OOP-with-Java-" target="_blank" class="project-link">
+                            <i class="fab fa-github"></i>
+                            Source Code
+                        </a>
+                    </div>
+                </div>
+            </div>
+    
+            <!-- Hydroponic System -->
+            <div class="project-card">
+                <div class="project-image" style="background-image: url('assets/project5Cpro.jpg')"></div>
+                <div class="project-info">
+                    <h3>Hydroponic System in C</h3>
+                    <div class="project-tech">
+                        <span class="tech-item">C</span>
+                        <span class="tech-item">Embedded Systems</span>
+                        <span class="tech-item">Sensors</span>
+                    </div>
+                    <p>Designed a hydroponic system model to monitor and control pH, temperature, and humidity.</p>
+                    <div class="project-links">
+                        <a href="https://github.com/Owono2001/Hidroponic-System-in-C-programming" target="_blank" class="project-link">
+                            <i class="fab fa-github"></i>
+                            Source Code
+                        </a>
+                    </div>
+                </div>
+            </div>
+    
+            <!-- OOP with C++ -->
+            <div class="project-card">
+                <div class="project-image" style="background-image: url('assets/project6Cpp.jpg')"></div>
+                <div class="project-info">
+                    <h3>OOP with C++ Programming</h3>
+                    <div class="project-tech">
+                        <span class="tech-item">C++</span>
+                        <span class="tech-item">Object-Oriented Design</span>
+                    </div>
+                    <p>Developed an inventory and purchase management system using encapsulation and polymorphism.</p>
+                    <div class="project-links">
+                        <a href="https://github.com/Owono2001/OOP-with-Cplusplus-Programming" target="_blank" class="project-link">
+                            <i class="fab fa-github"></i>
+                            Source Code
+                        </a>
+                    </div>
+                </div>
+            </div>
+    
+            <!-- Digital Electronics -->
+            <div class="project-card">
+                <div class="project-image" style="background-image: url('assets/project7DE.jpg')"></div>
+                <div class="project-info">
+                    <h3>Digital Electronics</h3>
+                    <div class="project-tech">
+                        <span class="tech-item">Digital Circuits</span>
+                        <span class="tech-item">Timers</span>
+                    </div>
+                    <p>Designed a multi-format digital timer circuit with a 2-bit control unit for timing configurations.</p>
+                    <div class="project-links">
+                        <a href="https://github.com/Owono2001/Digital-Electronics" target="_blank" class="project-link">
+                            <i class="fab fa-github"></i>
+                            Source Code
+                        </a>
+                    </div>
+                </div>
+            </div>
+    
+            <!-- Python Banking System -->
+            <div class="project-card">
+                <div class="project-image" style="background-image: url('assets/project8Python.png')"></div>
+                <div class="project-info">
+                    <h3>Python Banking System</h3>
+                    <div class="project-tech">
+                        <span class="tech-item">Python</span>
+                        <span class="tech-item">CLI</span>
+                    </div>
+                    <p>Created a menu-driven banking application for account management.</p>
+                    <div class="project-links">
+                        <a href="https://github.com/Owono2001/Python-Banking-System" target="_blank" class="project-link">
+                            <i class="fab fa-github"></i>
+                            Source Code
+                        </a>
+                    </div>
+                </div>
+            </div>
+    
+            <!-- Digital Signal Processing -->
+            <div class="project-card">
+                <div class="project-image" style="background-image: url('assets/project9DSP.jpg')"></div>
+                <div class="project-info">
+                    <h3>Digital Signal Processing</h3>
+                    <div class="project-tech">
+                        <span class="tech-item">DSP</span>
+                        <span class="tech-item">Noise Filtering</span>
+                    </div>
+                    <p>Analyzed and filtered noise using advanced DSP techniques.</p>
+                    <div class="project-links">
+                        <a href="https://github.com/Owono2001/Digital-Signal-Processing" target="_blank" class="project-link">
+                            <i class="fab fa-github"></i>
+                            Source Code
+                        </a>
+                    </div>
+                </div>
+            </div>
+    
+            <!-- Engineering Design -->
+            <div class="project-card">
+                <div class="project-image" style="background-image: url('assets/project10ED.jpg')"></div>
+                <div class="project-info">
+                    <h3>Engineering Design (SolidWorks)</h3>
+                    <div class="project-tech">
+                        <span class="tech-item">SolidWorks</span>
+                        <span class="tech-item">3D Modeling</span>
+                    </div>
+                    <p>Modeled bumper car components like exhaust pipes and gas pedals using SolidWorks.</p>
+                    <div class="project-links">
+                        <a href="https://github.com/Owono2001/Engineering-Design-Solidworks" target="_blank" class="project-link">
+                            <i class="fab fa-github"></i>
+                            Source Code
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            
+
+            <!-- Add other projects following the same structure -->
+            
+        </div>
+    </section>
+
+    <section id="skills" class="skills-section">
+        <h2 class="section-title">Technical Skills & Expertise</h2>
+        <div class="skills-grid">
+            <!-- Technical Skills -->
+            <div class="skill-category">
+                <h3><i class="fas fa-code skill-icon"></i> Technical Skills</h3>
+                <ul class="skill-list">
+                    <li class="skill-item">
+                        <i class="fas fa-caret-right skill-icon"></i>
+                        Programming: Python, C, C++, Java, R
+                    </li>
+                    <li class="skill-item">
+                        <i class="fas fa-caret-right skill-icon"></i>
+                        Web Development: HTML, CSS, Figma
+                    </li>
+                    <li class="skill-item">
+                        <i class="fas fa-caret-right skill-icon"></i>
+                        Embedded Systems: ROS2, Raspberry Pi
+                    </li>
+                    <li class="skill-item">
+                        <i class="fas fa-caret-right skill-icon"></i>
+                        AI & Machine Learning: OpenCV
+                    </li>
+                </ul>
+            </div>
+    
+            <!-- Core Competencies -->
+            <div class="skill-category">
+                <h3><i class="fas fa-tasks skill-icon"></i> Core Competencies</h3>
+                <ul class="skill-list">
+                    <li class="skill-item">
+                        <i class="fas fa-caret-right skill-icon"></i>
+                        Design of autonomous robotics systems
+                    </li>
+                    <li class="skill-item">
+                        <i class="fas fa-caret-right skill-icon"></i>
+                        3D modeling and prototyping
+                    </li>
+                    <li class="skill-item">
+                        <i class="fas fa-caret-right skill-icon"></i>
+                        IoT integration and implementation
+                    </li>
+                    <li class="skill-item">
+                        <i class="fas fa-caret-right skill-icon"></i>
+                        Software optimization for performance
+                    </li>
+                </ul>
+            </div>
+    
+            <!-- Notable Achievements -->
+            <div class="skill-category">
+                <h3><i class="fas fa-trophy skill-icon"></i> Notable Achievements</h3>
+                <ul class="skill-list">
+                    <li class="skill-item">
+                        <i class="fas fa-caret-right skill-icon"></i>
+                        Created an ANIAS robot for autonomous navigation
+                    </li>
+                    <li class="skill-item">
+                        <i class="fas fa-caret-right skill-icon"></i>
+                        Built a Car Rental System in Java
+                    </li>
+                    <li class="skill-item">
+                        <i class="fas fa-caret-right skill-icon"></i>
+                        Developed gesture-based machine vision systems
+                    </li>
+                    <li class="skill-item">
+                        <i class="fas fa-caret-right skill-icon"></i>
+                        Designed advanced noise-reduction DSP systems
+                    </li>
+                </ul>
+            </div>
+    
+            
+    </section>
+
+    <section id="experience" class="experience-section">
+        <h2 class="section-title">Experience</h2>
+        <div class="experience-card">
+            <div class="experience-logo">
+                <img src="assets/apu_logo.png" alt="APU Logo">
+            </div>
+            <div class="experience-content">
+                <h3>Engineer Intern</h3>
+                <p><strong>Asia Pacific University</strong> · Internship</p>
+                <p><em>Jun 2024 - Sep 2024 · 4 months</em></p>
+                <p>Malaysia · On-site</p>
+                <p>
+                    Worked on robotic systems' design, 3D printing, and motion mapping. Enhanced robotic functionality and participated in development milestones.
+                </p>
+            </div>
+        </div>
+    
+        <!-- Internship Picture Gallery -->
+        <section class="slideshow-section">
+            <h3 class="slideshow-title">Internship Picture Gallery</h3>
+            <div class="slideshow-container" id="picture-slideshow">
+                <div class="slide fade">
+                    <img src="assets/Teams.jpg" alt="Internship Team">
+                    <p>Internship Team</p>
+                </div>
+                <div class="slide fade">
+                    <img src="assets/Robot_Assembling.jpg" alt="Robot Assembly">
+                    <p>Robot Assembly</p>
+                </div>
+                <div class="slide fade">
+                    <img src="assets/Assembling_Training.jpg" alt="Training">
+                    <p>Training</p>
+                </div>
+            </div>
+        </section>
+    
+        <!-- Internship Video Gallery -->
+        <section class="slideshow-section">
+            <h3 class="slideshow-title">Internship Video Gallery</h3>
+            <div class="slideshow-container" id="video-slideshow">
+                <div class="slide fade">
+                    <video autoplay muted loop>
+                        <source src="assets/robot_Fully.mp4" type="video/mp4">
+                    </video>
+                    <p>Robot Fully Assembled</p>
+                </div>
+                <div class="slide fade">
+                    <video autoplay muted loop>
+                        <source src="assets/robot_demo1.mp4" type="video/mp4">
+                    </video>
+                    <p>Robot Navigation Demo 1</p>
+                </div>
+                <div class="slide fade">
+                    <video autoplay muted loop>
+                        <source src="assets/robot_demo2.mp4" type="video/mp4">
+                    </video>
+                    <p>Robot Navigation Demo 2</p>
+                </div>
+            </div>
+        </section>
+    </section>
+
+    <section id="about" class="about-section">
+        <h2 class="section-title">About Me</h2>
+        <div class="about-content">
+            <img src="assets/profile2.jpg" alt="Pedro Fabian Owono" class="profile-pic">
+            <div class="about-container">
+                <h2>Hi, I'm Pedro Fabian Owono</h2>
+                <p>
+                    A <span class="highlight">passionate engineering student</span> combining technical expertise with creativity to deliver innovative solutions. 
+                    Pursuing <span class="highlight">Computer Engineering</span> at the Asia Pacific University of Technology and Innovation, I have been dedicated to developing projects that merge technology with real-world applications.
+                </p>
+                <p>
+                    Beyond engineering, I have a strong interest in <span class="highlight">music production</span> and <span class="highlight">robotics design</span>. I am driven by the pursuit of impactful projects that make a difference.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" class="contact-section">
+        <h2 class="section-title">Contact Me</h2>
+        <p class="contact-description">Let's collaborate! Feel free to reach out via the form below or connect with me directly.</p>
+        <div class="contact-container">
+            <form action="https://formspree.io/f/xqaezjbb" method="POST">
+                <div class="form-row">
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" name="name" placeholder="Enter your name" required>
+                </div>
+                <div class="form-row">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="_replyto" placeholder="Enter your email" required>
+                </div>
+                <div class="form-row">
+                    <label for="message">Message</label>
+                    <textarea id="message" name="message" placeholder="Write your message here" required></textarea>
+                </div>
+                <button type="submit" class="btn">Send Message</button>
+            </form>
+        </div>
+    
+        <section class="social-media-section">
+            <h3 class="social-title">Connect with Me on Social Media</h3>
+            <div class="social-media-links">
+                <a href="https://www.instagram.com/owono2001/?hl=en" target="_blank" title="Instagram"><i class="fab fa-instagram"></i></a>
+                <a href="https://www.facebook.com/owono2001" target="_blank" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+                <a href="https://www.snapchat.com/add/pedromangue24" target="_blank" title="Snapchat"><i class="fab fa-snapchat-ghost"></i></a>
+                <a href="https://open.spotify.com/playlist/1ovl1EfATYpVidXAP4d0nH?utm_medium=share&utm_source=linktree" target="_blank" title="Spotify"><i class="fab fa-spotify"></i></a>
+                <a href="https://x.com/owono_pedro" target="_blank" title="Twitter"><i class="fab fa-twitter"></i></a>
+                <a href="https://discord.com/channels/@me" target="_blank" title="Discord"><i class="fab fa-discord"></i></a>
+            </div>
+        </section>
+    </section>
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    
+        // Fade-in animation for project cards and slides
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = 1;
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        });
+    
+        document.querySelectorAll('.project-card, .slide, .about-container').forEach(element => {
+            element.style.opacity = 0;
+            element.style.transform = 'translateY(20px)';
+            observer.observe(element);
+        });
+    
+        // Slideshow for images (Auto-transition every 3 seconds)
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+    
+        function showSlides() {
+            slides.forEach(slide => slide.style.display = 'none');
+            currentSlide = (currentSlide + 1) % slides.length;
+            slides[currentSlide].style.display = 'block';
+            setTimeout(showSlides, 3000); // Change slide every 3 seconds
+        }
+    
+        document.addEventListener('DOMContentLoaded', showSlides);
+    </script>

@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Industrial Portfolio | Modern Design</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        :root {
+            --primary-color: #2a2a2a;
+            --accent-color: #ff4d4d;
+            --text-color: #e0e0e0;
+            --industrial-metal: #4a4a4a;
+        }
+
+        body {
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(42, 42, 42, 0.95);
+            padding: 1.5rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent-color);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: var(--text-color);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-color);
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 0 5%;
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)),
+                        url('https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .hero-content {
+            max-width: 800px;
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeUp 1s forwards;
+        }
+
+        .hero p {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeUp 1s 0.3s forwards;
+        }
+
+        /* Projects Section */
+        .projects {
+            padding: 8rem 5%;
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 4rem;
+        }
+
+        .project-card {
+            background: var(--industrial-metal);
+            border-radius: 10px;
+            overflow: hidden;
+            transition: transform 0.3s;
+        }
+
+        .project-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .project-image {
+            height: 250px;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .project-info {
+            padding: 2rem;
+        }
+
+        /* Skills Section */
+        .skills {
+            padding: 6rem 5%;
+            background: var(--industrial-metal);
+        }
+
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .skill-item {
+            text-align: center;
+            padding: 2rem;
+            background: var(--primary-color);
+            border-radius: 10px;
+            transition: transform 0.3s;
+        }
+
+        .skill-item:hover {
+            transform: scale(1.05);
+        }
+
+        /* Contact Section */
+        .contact {
+            padding: 8rem 5%;
+            text-align: center;
+        }
+
+        .contact-form {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 1rem;
+            background: var(--industrial-metal);
+            border: none;
+            border-radius: 5px;
+            color: var(--text-color);
+        }
+
+        button {
+            background: var(--accent-color);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #ff3333;
+        }
+
+        /* Animations */
+        @keyframes fadeUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 3rem;
+            }
+
+            .hero p {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">INDUSTRIX</div>
+        <div class="nav-links">
+            <a href="#home">Home</a>
+            <a href="#projects">Projects</a>
+            <a href="#skills">Skills</a>
+            <a href="#contact">Contact</a>
+        </div>
+    </nav>
+
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <h1>Industrial Design & Modern Innovation</h1>
+            <p>Transforming visions into tangible industrial solutions</p>
+            <button>Explore Projects</button>
+        </div>
+    </section>
+
+    <section class="projects" id="projects">
+        <h2>Featured Projects</h2>
+        <div class="projects-grid">
+            <div class="project-card">
+                <div class="project-image" style="background-image: url('https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=800&q=80')"></div>
+                <div class="project-info">
+                    <h3>Factory Automation System</h3>
+                    <p>Advanced industrial automation solution for manufacturing</p>
+                </div>
+            </div>
+            <!-- Add more project cards -->
+        </div>
+    </section>
+
+    <section class="skills" id="skills">
+        <h2>Technical Expertise</h2>
+        <div class="skills-grid">
+            <div class="skill-item">
+                <i class="fas fa-cogs fa-3x"></i>
+                <h3>Mechanical Design</h3>
+            </div>
+            <!-- Add more skill items -->
+        </div>
+    </section>
+
+    <section class="contact" id="contact">
+        <h2>Get In Touch</h2>
+        <form class="contact-form">
+            <div class="form-group">
+                <input type="text" placeholder="Name">
+            </div>
+            <div class="form-group">
+                <input type="email" placeholder="Email">
+            </div>
+            <div class="form-group">
+                <textarea placeholder="Message" rows="5"></textarea>
+            </div>
+            <button>Send Message</button>
+        </form>
+    </section>
+
+    <footer>
+        <!-- Add footer content -->
+    </footer>
+</body>
+</html>

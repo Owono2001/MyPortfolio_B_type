@@ -1532,15 +1532,17 @@ body {
     text-align: center;     /* center the image horizontally */
     margin-top: 1.5rem;     /* spacing above the image */
   }
+
+
   
   .hero-img {
-    max-width: 40%;  /* Reduce image size to 40% of container width */
-    height: auto;    /* Maintain aspect ratio */
-    opacity: 0.7;    /* Make it semi-transparent */
-    display: block;  /* Ensures proper centering */
-    margin: 0 auto;  /* Centers image horizontally */
-    transition: opacity 0.3s ease, transform 0.3s ease;
+    max-width: 100%;
+    height: auto;
+    opacity: 0.8;  /* <--- Adjust transparency */
+    display: block;
+    margin: 0 auto;
   }
+
 
   /* Add subtle background pattern */
 .hero::before {
@@ -3555,10 +3557,20 @@ input, textarea, button {
     margin: 0 auto;
   }
   
-  #globeCanvas {
-    width: 100%;
-    height: 100%;
-    touch-action: none;
+  /* Make the canvas fill the screen & be behind everything else */
+    #globeCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;       /* behind everything */
+    outline: none;
+    border: none;
+    /* If you want the user to interact with it (click/hover),
+       keep pointer-events: auto. If you want them to pass
+       clicks through to page content, set pointer-events: none. */
+    pointer-events: none; 
   }
   
   .globe-overlay {

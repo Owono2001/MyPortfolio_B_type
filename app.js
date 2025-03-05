@@ -710,224 +710,350 @@
 
         class CyberGlobe {
             constructor(containerId = 'globeCanvas') {
-              this.container = document.getElementById(containerId);
-              if (!this.container) {
-                console.error('Globe container not found!');
-                return;
-              }
-          
-              this.initScene();
-              this.createEarth();
-              this.createAtmosphere();
-              this.createConnections();
-              this.setupControls();
-              this.addInteractivity();
-              this.setupResizeHandler();
-              this.animate();
-            }
-          
-            initScene() {
-              // Get container dimensions
-              const rect = this.container.getBoundingClientRect();
-              
-              // Scene setup
-              this.scene = new THREE.Scene();
-              this.camera = new THREE.PerspectiveCamera(
-                45,
-                rect.width / rect.height,
-                0.1,
-                1000
-              );
-              this.camera.position.z = 8;
-          
-              // Renderer
-              this.renderer = new THREE.WebGLRenderer({
-                canvas: this.container,
-                antialias: true,
-                alpha: true
-              });
-              
-              this.renderer.setPixelRatio(window.devicePixelRatio);
-              this.renderer.setSize(rect.width, rect.height);
-            }
-          
-            setupResizeHandler() {
-              const resizeObserver = new ResizeObserver(entries => {
-                for (let entry of entries) {
-                  const { width, height } = entry.contentRect;
-                  this.camera.aspect = width / height;
-                  this.camera.updateProjectionMatrix();
-                  this.renderer.setSize(width, height);
+                this.container = document.getElementById(containerId);
+                if (!this.container) {
+                  console.error('Globe container not found!');
+                  return;
                 }
-              });
-          
-              resizeObserver.observe(this.container);
-            }
-        
-            createEarth() {
-                // High-resolution earth
-                const geometry = new THREE.SphereGeometry(3.5, 128, 128);
-                const texture = new THREE.TextureLoader().load(
-                    'assets/textures/earth-texture.jpg',
-                    () => {
-                        texture.anisotropy = this.renderer.capabilities.getMaxAnisotropy();
-                    }
+            
+                // === CONFIG ===
+                this.autoRotateSpeed = 0.0005;      // How fast the Earth spins on its own
+                this.connectionCount = 400;         // # of small "network" points on Earth
+                this.arcCount = 10;                // # of arcs that animate in/out
+                this.isUserInteracting = false;     // We'll keep it false (no orbiting)
+            
+                this.initScene();
+                this.addLights();
+                this.createStarField();
+                this.createEarth();
+                this.createAtmosphere();
+                this.createConnections();
+                this.createArcs();
+                this.addInteractivity();
+                this.setupResizeHandler();
+                this.animate();
+              }
+            
+              // ----------------------------------
+              // 1) SCENE + CAMERA + RENDERER
+              // ----------------------------------
+              initScene() {
+                // Get container's width/height
+                const rect = this.container.getBoundingClientRect();
+            
+                // Create Scene
+                this.scene = new THREE.Scene();
+            
+                // Create Camera
+                this.camera = new THREE.PerspectiveCamera(
+                  45,
+                  rect.width / rect.height,
+                  0.1,
+                  1000
                 );
-        
-                this.earthMaterial = new THREE.MeshPhongMaterial({
-                    map: texture,
-                    bumpScale: 0.1,
-                    specular: new THREE.Color(0x222222),
-                    emissive: 0x00f3ff,
-                    emissiveIntensity: 0.1,
-                    shininess: 10,
-                    transparent: true,
+                this.camera.position.set(0, 0, 8);
+            
+                // Create Renderer
+                this.renderer = new THREE.WebGLRenderer({
+                  canvas: this.container,
+                  antialias: true,
+                  alpha: true
                 });
-        
-                this.earth = new THREE.Mesh(geometry, this.earthMaterial);
-                this.scene.add(this.earth);
-            }
-        
-            createAtmosphere() {
-                // Add atmospheric glow
-                const atmosphere = new THREE.Mesh(
-                    new THREE.SphereGeometry(3.6, 64, 64),
-                    new THREE.MeshPhongMaterial({
-                        color: 0x00f3ff,
-                        transparent: true,
-                        opacity: 0.2,
-                        specular: 0x222222,
-                        side: THREE.BackSide
-                    })
+                this.renderer.setPixelRatio(window.devicePixelRatio);
+                this.renderer.setSize(rect.width, rect.height);
+              }
+            
+              // ----------------------------------
+              // 2) LIGHTING
+              // ----------------------------------
+              addLights() {
+                // Ambient light
+                const ambient = new THREE.AmbientLight(0xffffff, 0.4);
+                this.scene.add(ambient);
+            
+                // Directional light
+                const dirLight = new THREE.DirectionalLight(0xffffff, 1);
+                dirLight.position.set(10, 10, 10);
+                this.scene.add(dirLight);
+              }
+            
+              // ----------------------------------
+              // 3) STAR FIELD (BACKGROUND STARS)
+              // ----------------------------------
+              createStarField() {
+                const starGeometry = new THREE.BufferGeometry();
+                const starCount = 1200;
+                const positions = new Float32Array(starCount * 3);
+            
+                for (let i = 0; i < starCount; i++) {
+                  // Use spherical coordinates to spread them around
+                  const r = 300; 
+                  const theta = 2 * Math.PI * Math.random();
+                  const phi = Math.acos(2 * Math.random() - 1);
+            
+                  const x = r * Math.sin(phi) * Math.cos(theta);
+                  const y = r * Math.sin(phi) * Math.sin(theta);
+                  const z = r * Math.cos(phi);
+            
+                  positions[i * 3 + 0] = x;
+                  positions[i * 3 + 1] = y;
+                  positions[i * 3 + 2] = z;
+                }
+                starGeometry.setAttribute(
+                  'position',
+                  new THREE.BufferAttribute(positions, 3)
                 );
-                this.scene.add(atmosphere);
-            }
-        
-            createConnections() {
-                // Dynamic connection points
+            
+                const starMaterial = new THREE.PointsMaterial({
+                  color: 0xffffff,
+                  size: 1,
+                  sizeAttenuation: true
+                });
+            
+                this.starField = new THREE.Points(starGeometry, starMaterial);
+                this.scene.add(this.starField);
+              }
+            
+              // ----------------------------------
+              // 4) EARTH
+              // ----------------------------------
+              createEarth() {
+                const geometry = new THREE.SphereGeometry(3.5, 64, 64);
+            
+                const loader = new THREE.TextureLoader();
+                const earthTexture = loader.load('assets/textures/earth-texture.jpg');
+            
+                this.earthMaterial = new THREE.MeshPhongMaterial({
+                  map: earthTexture,
+                  bumpScale: 0.1,
+                  specular: new THREE.Color(0x222222),
+                  emissive: 0x00f3ff,
+                  emissiveIntensity: 0.1,
+                  shininess: 10,
+                  transparent: true
+                });
+            
+                this.earth = new THREE.Mesh(geometry, this.earthMaterial);
+                this.earth.name = 'earth';
+                this.scene.add(this.earth);
+              }
+            
+              // ----------------------------------
+              // 5) ATMOSPHERE
+              // ----------------------------------
+              createAtmosphere() {
+                const atmosphereGeo = new THREE.SphereGeometry(3.6, 64, 64);
+                const atmosphereMat = new THREE.MeshPhongMaterial({
+                  color: 0x00f3ff,
+                  transparent: true,
+                  opacity: 0.2,
+                  side: THREE.BackSide
+                });
+                this.atmosphere = new THREE.Mesh(atmosphereGeo, atmosphereMat);
+                this.atmosphere.name = 'atmosphere';
+                this.scene.add(this.atmosphere);
+            
+                // Subtle pulsing effect
+                gsap.to(this.atmosphere.material, {
+                  opacity: 0.3,
+                  duration: 2,
+                  repeat: -1,
+                  yoyo: true,
+                  ease: 'sine.inOut'
+                });
+              }
+            
+              // ----------------------------------
+              // 6) CONNECTION POINTS
+              // ----------------------------------
+              createConnections() {
                 this.connectionPoints = [];
                 const geometry = new THREE.SphereGeometry(0.02, 8, 8);
                 const material = new THREE.MeshBasicMaterial({
-                    color: 0x00f3ff,
-                    transparent: true,
-                    opacity: 0.8
+                  color: 0x00f3ff,
+                  transparent: true,
+                  opacity: 0.8
                 });
-        
-                for (let i = 0; i < 500; i++) {
-                    const phi = Math.acos(-1 + (2 * i) / 500);
-                    const theta = Math.sqrt(500 * Math.PI) * phi;
-                    
-                    const point = new THREE.Mesh(geometry, material);
-                    point.position.set(
-                        3.6 * Math.cos(theta) * Math.sin(phi),
-                        3.6 * Math.sin(theta) * Math.sin(phi),
-                        3.6 * Math.cos(phi)
-                    );
-                    this.connectionPoints.push(point);
-                    this.scene.add(point);
+            
+                for (let i = 0; i < this.connectionCount; i++) {
+                  const phi = Math.acos(-1 + (2 * i) / this.connectionCount);
+                  const theta = Math.sqrt(this.connectionCount * Math.PI) * phi;
+            
+                  const point = new THREE.Mesh(geometry, material);
+                  point.position.set(
+                    3.6 * Math.cos(theta) * Math.sin(phi),
+                    3.6 * Math.sin(theta) * Math.sin(phi),
+                    3.6 * Math.cos(phi)
+                  );
+                  point.name = 'connectionPoint';
+                  this.connectionPoints.push(point);
+                  this.scene.add(point);
                 }
-            }
-        
-            setupControls() {
-                // Orbit controls for interaction
-                this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
-                this.controls.enableDamping = true;
-                this.controls.dampingFactor = 0.05;
-                this.controls.rotateSpeed = 0.5;
-                this.controls.minDistance = 5;
-                this.controls.maxDistance = 15;
-            }
-        
-            addInteractivity() {
-                // Hover effects
+              }
+            
+              // ----------------------------------
+              // 7) OPTIONAL ARCS
+              // ----------------------------------
+              createArcs() {
+                this.arcs = [];
+                for (let i = 0; i < this.arcCount; i++) {
+                  const idxA = Math.floor(Math.random() * this.connectionPoints.length);
+                  const idxB = Math.floor(Math.random() * this.connectionPoints.length);
+                  if (idxA === idxB) continue;
+            
+                  const start = this.connectionPoints[idxA].position.clone();
+                  const end = this.connectionPoints[idxB].position.clone();
+            
+                  // Midpoint above Earth surface
+                  const mid = start.clone().lerp(end, 0.5);
+                  mid.normalize().multiplyScalar(4.0);
+            
+                  const curve = new THREE.QuadraticBezierCurve3(start, mid, end);
+                  const curvePoints = curve.getPoints(50);
+            
+                  const arcGeometry = new THREE.BufferGeometry().setFromPoints(curvePoints);
+                  const arcMaterial = new THREE.LineBasicMaterial({
+                    color: 0xff00ff,
+                    transparent: true,
+                    opacity: 0
+                  });
+            
+                  const arcLine = new THREE.Line(arcGeometry, arcMaterial);
+                  arcLine.name = 'arcLine';
+                  this.arcs.push(arcLine);
+                  this.scene.add(arcLine);
+            
+                  // Animate
+                  gsap.to(arcLine.material, {
+                    opacity: 1,
+                    duration: 1,
+                    delay: i * 0.2,
+                    repeat: -1,
+                    yoyo: true,
+                    ease: 'sine.inOut'
+                  });
+                }
+              }
+            
+              // ----------------------------------
+              // 8) INTERACTIVITY (Hover/Click)
+              // ----------------------------------
+              addInteractivity() {
                 this.raycaster = new THREE.Raycaster();
                 this.mouse = new THREE.Vector2();
-        
+            
+                // Hover effect
                 document.addEventListener('mousemove', (e) => this.handleHover(e));
+            
+                // Click effect
                 document.addEventListener('click', (e) => this.handleClick(e));
-            }
-        
-            handleHover(e) {
-                this.mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-                this.mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
-        
+            
+                // Simple tooltip
+                this.tooltip = document.createElement('div');
+                this.tooltip.style.position = 'fixed';
+                this.tooltip.style.padding = '6px 10px';
+                this.tooltip.style.background = 'rgba(0,0,0,0.6)';
+                this.tooltip.style.color = '#00f3ff';
+                this.tooltip.style.font = '12px monospace';
+                this.tooltip.style.border = '1px solid #00f3ff';
+                this.tooltip.style.borderRadius = '4px';
+                this.tooltip.style.pointerEvents = 'none';
+                this.tooltip.style.opacity = '0';
+                document.body.appendChild(this.tooltip);
+              }
+            
+              handleHover(e) {
+                const { clientX, clientY } = e;
+                this.mouse.x = (clientX / window.innerWidth) * 2 - 1;
+                this.mouse.y = -((clientY / window.innerHeight) * 2 - 1);
+            
+                
+            
+                if (intersects.length > 0) {
+                  const objName = intersects[0].object.name;
+            
+                  if (objName === 'earth') {
+                    gsap.to(this.earthMaterial, { emissiveIntensity: 0.3, duration: 0.3 });
+                    this.tooltip.textContent = 'Earth';
+                    this.tooltip.style.opacity = '1';
+                  } else if (objName === 'connectionPoint') {
+                    this.tooltip.textContent = 'Network Node';
+                    this.tooltip.style.opacity = '1';
+                  }
+            
+                  this.tooltip.style.left = clientX + 'px';
+                  this.tooltip.style.top = clientY + 'px';
+                } else {
+                  gsap.to(this.earthMaterial, { emissiveIntensity: 0.1, duration: 0.3 });
+                  this.tooltip.style.opacity = '0';
+                }
+              }
+            
+              handleClick(e) {
                 this.raycaster.setFromCamera(this.mouse, this.camera);
                 const intersects = this.raycaster.intersectObject(this.earth);
-        
+            
                 if (intersects.length > 0) {
-                    gsap.to(this.earthMaterial, {
-                        emissiveIntensity: 0.3,
-                        duration: 0.3
-                    });
-                } else {
-                    gsap.to(this.earthMaterial, {
-                        emissiveIntensity: 0.1,
-                        duration: 0.3
-                    });
+                  this.createPulseEffect(intersects[0].point);
                 }
-            }
-        
-            handleClick(e) {
-                const intersects = this.raycaster.intersectObject(this.earth);
-                if (intersects.length > 0) {
-                    this.createPulseEffect(intersects[0].point);
-                }
-            }
-        
-            createPulseEffect(position) {
-                const geometry = new THREE.SphereGeometry(0.05, 16, 16);
-                const material = new THREE.MeshBasicMaterial({
-                    color: 0x00f3ff,
-                    transparent: true
-                });
-        
-                const sphere = new THREE.Mesh(geometry, material);
+              }
+            
+              createPulseEffect(position) {
+                const geo = new THREE.SphereGeometry(0.05, 16, 16);
+                const mat = new THREE.MeshBasicMaterial({ color: 0x00f3ff, transparent: true });
+                const sphere = new THREE.Mesh(geo, mat);
                 sphere.position.copy(position);
                 this.scene.add(sphere);
-        
+            
                 gsap.to(sphere.scale, {
-                    x: 2,
-                    y: 2,
-                    z: 2,
-                    duration: 1,
-                    ease: "power2.out",
-                    onComplete: () => this.scene.remove(sphere)
+                  x: 2, y: 2, z: 2,
+                  duration: 1,
+                  ease: 'power2.out',
+                  onComplete: () => this.scene.remove(sphere)
                 });
-        
-                gsap.to(material, {
-                    opacity: 0,
-                    duration: 1,
-                    ease: "power2.out"
+                gsap.to(mat, {
+                  opacity: 0,
+                  duration: 1,
+                  ease: 'power2.out'
                 });
-            }
-        
-            setupResizeHandler() {
-                window.addEventListener('resize', () => {
-                    this.camera.aspect = window.innerWidth / window.innerHeight;
+              }
+            
+              // ----------------------------------
+              // 9) RESIZE HANDLER
+              // ----------------------------------
+              setupResizeHandler() {
+                const resizeObserver = new ResizeObserver(entries => {
+                  for (let entry of entries) {
+                    const { width, height } = entry.contentRect;
+                    this.camera.aspect = width / height;
                     this.camera.updateProjectionMatrix();
-                    this.renderer.setSize(window.innerWidth, window.innerHeight);
+                    this.renderer.setSize(width, height);
+                  }
                 });
-            }
-        
-            animate() {
+                resizeObserver.observe(this.container);
+              }
+            
+              // ----------------------------------
+              // 10) ANIMATION LOOP
+              // ----------------------------------
+              animate() {
                 requestAnimationFrame(() => this.animate());
-                
-                // Smooth rotation when not interacting
-                if (!this.controls.enabled || !this.controls.isUserInteracting) {
-                    this.earth.rotation.y += 0.0005;
-                }
-        
-                // Animate connection points
-                this.connectionPoints.forEach(point => {
-                    point.position.y += Math.sin(Date.now() * 0.002) * 0.001;
-                    point.rotation.x += 0.01;
-                    point.rotation.y += 0.01;
+            
+                // Always auto-rotate
+                this.earth.rotation.y += this.autoRotateSpeed;
+            
+                // Subtle float on points
+                const t = Date.now() * 0.002;
+                this.connectionPoints.forEach((point, i) => {
+                  point.position.y += Math.sin(t + i) * 0.0005;
+                  point.rotation.x += 0.01;
+                  point.rotation.y += 0.01;
                 });
-        
-                this.controls.update();
+            
+                // Render
                 this.renderer.render(this.scene, this.camera);
+              }
             }
-        }
         
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
@@ -961,6 +1087,7 @@
         });
 
 
+        
 
 
         document.addEventListener("DOMContentLoaded", function () {

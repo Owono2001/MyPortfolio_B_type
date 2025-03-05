@@ -4318,10 +4318,6 @@ input, textarea, button {
   /* If the CV overlay is active, adjust the AI chat position on mobile to avoid overlap.
      This rule assumes .cv-overlay and .ai-core are siblings.
   */
-  @media (max-width: 480px) {
-    .cv-overlay.active ~ .ai-core {
-      bottom: 100px; /* Adjust this value as needed so the chat is moved upward */
-    }
-  }
+
   
   

@@ -4320,7 +4320,7 @@ input, textarea, button {
   */
   @media (max-width: 480px) {
     .cv-overlay.active ~ .ai-core {
-      bottom: 250px; /* Adjust this value as needed so the chat is moved upward */
+      bottom: 100px; /* Adjust this value as needed so the chat is moved upward */
     }
   }
   

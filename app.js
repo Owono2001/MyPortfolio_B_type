@@ -13,6 +13,9 @@
          (All code related to “lenis” has been taken out.)
     ************************************************************/
 
+
+         
+
     // ======== GSAP SCROLL TRIGGER SETUP ========
     gsap.registerPlugin(ScrollTrigger);
 
@@ -51,6 +54,25 @@
         );
         scene.add(particleMesh);
         camera.position.z = 2;
+
+        // ======== PULSING GRID SYSTEM ========
+        const gridGeometry = new THREE.GridHelper(
+            100, 
+            100, 
+            new THREE.Color(0x00f3ff), // Primary color
+            new THREE.Color(0x003344)  // Secondary color
+        );
+        gridGeometry.material.opacity = 0.3;
+        gridGeometry.material.transparent = true;
+        scene.add(gridGeometry);
+        
+        // Grid animation (NEW CODE)
+        gsap.to(gridGeometry.material, {
+            opacity: 0.6,
+            duration: 2,
+            repeat: -1,
+            yoyo: true
+        });
 
         // ======== PARTICLE ANIMATION ========
         let lastFrameTime = 0;
@@ -732,6 +754,9 @@
                 this.addInteractivity();
                 this.setupResizeHandler();
                 this.animate();
+                // Add weather visualization
+                this.weatherOverlay = null;
+                this.isWeatherVisible = false;
               }
             
               // ----------------------------------
@@ -863,6 +888,8 @@
                 });
               }
             
+
+              
               // ----------------------------------
               // 6) CONNECTION POINTS
               // ----------------------------------

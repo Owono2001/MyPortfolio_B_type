@@ -4234,60 +4234,148 @@ input, textarea, button {
   }
   
   /* =======================================
-     Responsive Adjustments for AI Chat
+     AI CHAT RESPONSIVE MASTER STYLES
   ======================================= */
+@media (max-width: 1200px) {
+    .ai-core {
+      max-width: 600px;
+      margin: 0 auto;
+      left: 0;
+      right: 0;
+      transform: translateY(100%);
+    }
+    
+    .ai-core.active {
+      transform: translateY(0);
+    }
+  }
+  
   @media (max-width: 768px) {
     .ai-core {
-      bottom: 8px;
-      width: 85%;
-      max-width: 85%;
-      font-size: 0.9rem;
+      width: 95%;
+      max-width: none;
+      border-radius: 20px 20px 0 0;
+      font-size: 0.95rem;
     }
+  
     .chat-messages {
-      height: 220px;
+      height: 55vh;
+      padding: 1.2rem;
+    }
+  
+    .ai-header {
+      padding: 1rem;
+    }
+  
+    .ai-avatar {
+      width: 40px;
+      height: 40px;
     }
   }
+  
   @media (max-width: 480px) {
     .ai-core {
-      border-radius: 0;
       width: 100%;
-      left: 50%;
-      transform: translate(-50%, 100%);
-      font-size: 0.rem;
-      bottom: 0;  /* Ensures it stays flush at the bottom */
+      border-radius: 0;
+      left: 0;
+      transform: translateY(100%);
     }
+  
     .ai-core.active {
-      transform: translate(-50%, 0);
+      transform: translateY(0);
     }
+  
     .chat-messages {
-      height: 200px;
-      padding: 0.8rem;
-      gap: 0.8rem;
+      height: 65vh;
+      padding: 1rem;
     }
-    .chat-input {
-      padding: 0.8rem;
-    }
+  
     #aiQuery {
-      padding: 0.5rem;
-      font-size: 0.85rem;
+      padding: 0.8rem;
+      font-size: 1rem;
     }
+  
     .ai-send {
-      padding: 0 0.7rem;
-      font-size: 0.85rem;
+      padding: 0.8rem 1.2rem;
+      font-size: 1rem;
     }
+  
+    .quick-actions {
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+  
     .ai-action {
-      font-size: 0.85rem;
-      padding: 0.4rem;
+      flex: 1 1 45%;
+      padding: 0.6rem;
+      font-size: 0.9rem;
     }
   }
   
-  /********************************
-     Additional Global Adjustments
-  *********************************/
-  /* Ensure text within grid elements wraps properly */
+  @media (max-width: 380px) {
+    .chat-messages {
+      height: 70vh;
+    }
+  
+    #aiQuery {
+      font-size: 0.9rem;
+    }
+  
+    .ai-send {
+      padding: 0.6rem 1rem;
+    }
+  }
+  
+  /* =======================================
+       TOUCH-FRIENDLY ENHANCEMENTS
+    ======================================= */
+  @media (hover: none) and (pointer: coarse) {
+    .ai-action {
+      min-height: 44px; /* Apple recommended touch target size */
+    }
+    
+    #aiQuery {
+      font-size: 16px; /* Prevent mobile zoom */
+    }
+  }
+  
+  /* =======================================
+       LANDSCAPE ORIENTATION ADJUSTMENTS
+    ======================================= */
+  @media screen and (orientation: landscape) {
+    @media (max-width: 800px) {
+      .chat-messages {
+        height: 50vh;
+      }
+      
+      .ai-core {
+        max-height: 90vh;
+      }
+    }
+  }
+  
+  /* =======================================
+       DARK MODE CONSIDERATIONS
+    ======================================= */
+  @media (prefers-color-scheme: dark) {
+    .ai-core {
+      background: rgba(10, 10, 20, 0.98);
+      border-color: rgba(0, 243, 255, 0.5);
+    }
+  }
+  
+  /* =======================================
+       GLOBAL TEXT OPTIMIZATIONS
+    ======================================= */
   .cyber-content-grid,
-  .cyber-header-grid {
+  .cyber-header-grid,
+  .chat-messages {
     overflow-wrap: break-word;
     word-break: break-word;
+    hyphens: auto;
   }
   
+  .message-content {
+    line-height: 1.5;
+    letter-spacing: 0.02em;
+  }

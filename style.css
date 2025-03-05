@@ -63,10 +63,10 @@ body {
 
 /* ===== LAYOUT COMPONENTS ===== */
 .section {
-    background: rgba(10, 10, 18, 0.85); /* Semi-transparent layer */
     position: relative;
-    padding: var(--section-padding);
-}
+    z-index: 1; /* Ensure content stays above globe */
+    background: rgba(10, 10, 18, 0.85);
+  }
 
 /* ===== NAVIGATION ===== */
 .navbar {
@@ -3558,19 +3558,15 @@ input, textarea, button {
   }
   
   /* Make the canvas fill the screen & be behind everything else */
-    #globeCanvas {
+    /* Add this to your style.css */
+#globeCanvas {
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    z-index: -1;       /* behind everything */
-    outline: none;
-    border: none;
-    /* If you want the user to interact with it (click/hover),
-       keep pointer-events: auto. If you want them to pass
-       clicks through to page content, set pointer-events: none. */
-    pointer-events: none; 
+    z-index: -1;
+    pointer-events: none;
   }
   
   .globe-overlay {

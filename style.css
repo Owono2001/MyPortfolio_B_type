@@ -3619,7 +3619,6 @@ input, textarea, button {
 
 
 
-
 /********************************
   CV OVERLAY SCOPED STYLES
 *********************************/
@@ -3635,7 +3634,7 @@ input, textarea, button {
     z-index: 9999; /* Above everything else */
     display: none; /* Hidden by default */
     opacity: 0;    /* For fade-in animation */
-    transition: opacity 0.6s ease; 
+    transition: opacity 0.6s ease;
   }
   
   .cv-overlay.active {
@@ -3670,16 +3669,15 @@ input, textarea, button {
     100% { transform: translate(-50px, -50px); }
   }
   
-  /* Optional particle canvas inside CV overlay */
+  /* Optional particle canvas */
   .cv-overlay .particle-canvas {
     position: absolute;
     width: 100%;
     height: 100%;
     pointer-events: none;
-    /* custom particle anim if you wish */
   }
   
-  /* The CV modal itself */
+  /* CV Modal */
   .cv-overlay .cv-modal {
     max-width: 1000px;
     margin: 4vh auto;
@@ -3704,7 +3702,7 @@ input, textarea, button {
     }
   }
   
-  /* Close button (the "X") at top-right */
+  /* Close button */
   .cv-overlay .cv-close {
     position: absolute;
     top: 1rem;
@@ -3725,17 +3723,11 @@ input, textarea, button {
     display: inline-block;
     width: 30px;
     height: 30px;
-    background: conic-gradient(
-      from 0deg,
-      #ff00ff 0%,
-      #00f3ff 50%,
-      #ff00ff 100%
-    );
-    /* Simple diagonal lines mask for "X" */
+    background: conic-gradient(from 0deg, #ff00ff 0%, #00f3ff 50%, #ff00ff 100%);
     mask: url('data:image/svg+xml;utf8,<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg"><path stroke="white" stroke-width="20" d="M15,15 L185,185 M185,15 L15,185"></path></svg>') no-repeat center / contain;
   }
   
-  /* Header Grid (profile + title) */
+  /* Header Grid */
   .cv-overlay .cyber-header-grid {
     display: grid;
     grid-template-columns: 1fr 2fr;
@@ -3796,6 +3788,7 @@ input, textarea, button {
     backdrop-filter: blur(2px);
   }
   
+  /* Title & Subtitle */
   .cv-overlay .title-matrix {
     display: flex;
     flex-direction: column;
@@ -3845,6 +3838,7 @@ input, textarea, button {
     from { width: 0; }
     to   { width: 100%; }
   }
+  
   @keyframes blinking {
     0%, 100% { border-color: transparent; }
     50%      { border-color: #00f3ff; }
@@ -3854,7 +3848,7 @@ input, textarea, button {
     display: inline-block;
   }
   
-  /* 3-Column Grid below header (Neural Net, Timeline, Skill Cube) */
+  /* 3-Column Content Grid */
   .cv-overlay .cyber-content-grid {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
@@ -3862,7 +3856,7 @@ input, textarea, button {
     margin-bottom: 2rem;
   }
   
-  /* Neural network placeholder box */
+  /* Neural Network Box */
   .cv-overlay .neural-network {
     position: relative;
     background: rgba(0,0,0,0.2);
@@ -3870,7 +3864,7 @@ input, textarea, button {
     border-radius: 8px;
     min-height: 200px;
   }
-  .cv-overlay .neuron-node, 
+  .cv-overlay .neuron-node,
   .cv-overlay .neuron-connection {
     position: absolute;
     background: #ff00ff;
@@ -3881,10 +3875,12 @@ input, textarea, button {
     border-radius: 50%;
   }
   .cv-overlay .neuron-node:nth-child(1) {
-    top: 30%; left: 40%;
+    top: 30%;
+    left: 40%;
   }
   .cv-overlay .neuron-node:nth-child(2) {
-    top: 60%; left: 70%;
+    top: 60%;
+    left: 70%;
   }
   .cv-overlay .neuron-connection {
     width: 2px;
@@ -3894,7 +3890,7 @@ input, textarea, button {
     background: linear-gradient(to bottom, #00f3ff, #ff00ff);
   }
   
-  /* Timeline column */
+  /* Timeline */
   .cv-overlay .industrial-timeline {
     position: relative;
     background: rgba(0,0,0,0.2);
@@ -3923,7 +3919,7 @@ input, textarea, button {
     font-size: 0.9rem;
   }
   
-  /* Skill matrix 3D cube */
+  /* 3D Skill Matrix Cube */
   .cv-overlay .skill-matrix {
     position: relative;
     background: rgba(0,0,0,0.2);
@@ -3944,7 +3940,7 @@ input, textarea, button {
     color: #00f3ff;
   }
   @keyframes rotateCube {
-    0%   { transform: rotateX(0) rotateY(0); }
+    0% { transform: rotateX(0) rotateY(0); }
     100% { transform: rotateX(360deg) rotateY(360deg); }
   }
   .cv-overlay .cube-face {
@@ -3973,7 +3969,7 @@ input, textarea, button {
     transform: rotateX(-90deg) translateZ(40px);
   }
   
-  /* Holographic Interface (tabs + search + content) */
+  /* Holographic Interface (Tabs + Search + Content) */
   .cv-overlay .holographic-interface {
     background: rgba(0,0,0,0.3);
     border: 1px solid rgba(255,0,255,0.3);
@@ -3982,7 +3978,7 @@ input, textarea, button {
     margin-bottom: 2rem;
   }
   
-  /* Tabs row */
+  /* Tabs */
   .cv-overlay .cyber-tabs {
     display: flex;
     gap: 1rem;
@@ -3991,7 +3987,7 @@ input, textarea, button {
   .cv-overlay .cyber-tab {
     position: relative;
     padding: 0.8rem 1.2rem;
-    background: rgba(0, 243, 255, 0.1);
+    background: rgba(0,243,255,0.1);
     color: #00f3ff;
     cursor: pointer;
     border: 1px solid rgba(0,243,255,0.3);
@@ -4022,7 +4018,6 @@ input, textarea, button {
     display: flex;
     gap: 0.5rem;
   }
-  
   .cv-overlay .neural-input {
     flex: 1;
     padding: 0.8rem;
@@ -4030,14 +4025,13 @@ input, textarea, button {
     border: 1px solid rgba(0,243,255,0.3);
     color: #00f3ff;
   }
-  
   .cv-overlay .neural-feedback {
     width: 30px;
     height: 30px;
     background: radial-gradient(circle, rgba(255,0,255,0.3), transparent 50%);
   }
   
-  /* Tabbed sections */
+  /* Tabbed Sections */
   .cv-overlay .cyber-section {
     display: none;
   }
@@ -4063,14 +4057,13 @@ input, textarea, button {
     margin-right: 0.5rem;
     animation: pulse 1.5s infinite;
   }
-  
   @keyframes pulse {
-    0%   { transform: scale(1);   opacity: 1; }
-    50%  { transform: scale(1.2); opacity: 0.7; }
-    100% { transform: scale(1);   opacity: 1; }
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.2); opacity: 0.7; }
+    100% { transform: scale(1); opacity: 1; }
   }
   
-  /* Return to Mainframe Button */
+  /* Return Button */
   .cv-overlay .quantum-return {
     text-align: center;
     margin-top: 2rem;
@@ -4089,11 +4082,12 @@ input, textarea, button {
     width: 200%;
     height: 100%;
     background: linear-gradient(90deg, rgba(0,243,255,0.2), transparent);
-    top: 0; left: -100%;
+    top: 0;
+    left: -100%;
     animation: hyperScan 2s linear infinite;
   }
   @keyframes hyperScan {
-    0%   { left: -100%; }
+    0% { left: -100%; }
     100% { left: 100%; }
   }
   .cv-overlay .hyper-btn .btn-core {
@@ -4109,7 +4103,7 @@ input, textarea, button {
   }
   
   /********************************
-     MOBILE SCOPING
+     MOBILE SCOPING for CV Overlay
   *********************************/
   @media (max-width: 768px) {
     .cv-overlay .cv-modal {
@@ -4129,48 +4123,37 @@ input, textarea, button {
     }
   }
   
-
-
-
-
-/* =======================================
-   AI CHAT INTERFACE STYLES (Responsive)
-======================================= */
-
-/* 
-  Main Chat Container – 
-  Now positioned at the bottom center, 
-  with a slightly smaller overall font size for better readability.
-*/
-.ai-core {
+  /********************************
+     AI CHAT INTERFACE STYLES (Responsive)
+  *********************************/
+  
+  /* Main Chat Container – Positioned at bottom center inside the resume */
+  .ai-core {
     position: fixed;
-    bottom: 10px;       /* Closer to bottom for phone screens */
-    left: 50%;          /* Center horizontally */
-    width: 380px;       /* Slightly narrower by default */
-    max-width: 90vw;    /* Ensure it doesn’t exceed viewport width */
+    bottom: 10px;
+    left: 50%;
+    width: 380px;
+    max-width: 90vw;
     background: rgba(16,16,32,0.95);
     border: 2px solid var(--neon-cyan, #00ffff);
     border-radius: 10px;
-    font-size: 0.95rem; /* Slightly smaller text for general usage */
-    
-    /* Slide-up effect from 150% (hidden) to 0% (visible) */
+    font-size: 0.95rem;
     transform: translate(-50%, 150%);
     transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 0 0 25px rgba(0,255,255,0.2);
-    
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    z-index: 999;
+    z-index: 900; /* Lower than CV overlay (9999) if needed */
   }
   
   .ai-core.active {
     transform: translate(-50%, 0);
   }
   
-  /* Chat Messages Container */
+  /* Chat messages container */
   .chat-messages {
-    height: 260px;             /* Reduced for smaller screens */
+    height: 260px;
     overflow-y: auto;
     padding: 1rem;
     background: rgba(16,16,32,0.85);
@@ -4189,48 +4172,44 @@ input, textarea, button {
     line-height: 1.4;
   }
   
-  /* Different background for the user */
   .user-message {
     background: rgba(0,255,255,0.15);
     text-align: right;
   }
   
-  /* Animate the bubble appearance */
   @keyframes messageAppear {
     0%   { transform: scale(0.95) translateY(10px); opacity: 0; }
-    100% { transform: scale(1)    translateY(0);    opacity: 1; }
+    100% { transform: scale(1)    translateY(0);  opacity: 1; }
   }
   
-  /* Typing animation for the AI (3 dots) */
+  /* Typing animation */
   .typing-animation {
     display: flex;
-    gap: 4px;
+    gap: 5px;
     margin-bottom: 0.5rem;
   }
-  
   .dot {
-    width: 6px;
-    height: 6px;
+    width: 8px;
+    height: 8px;
     background: var(--neon-cyan, #00ffff);
     border-radius: 50%;
     animation: dotBlink 1.2s infinite;
   }
-  
   @keyframes dotBlink {
-    0%, 100% { transform: scale(1);   opacity: 0.3; }
-    50%      { transform: scale(1.2); opacity: 1;   }
+    0%, 100% { transform: scale(1); opacity: 0.3; }
+    50% { transform: scale(1.2); opacity: 1; }
   }
   
   /* Quick actions row */
   .quick-actions {
     display: flex;
-    gap: 0.4rem;
+    gap: 0.5rem;
     border-top: 1px solid rgba(0,255,255,0.2);
     padding: 0.8rem;
     background: rgba(16,16,32,0.9);
   }
   
-  /* Quick action button effect */
+  /* Quick action buttons */
   .ai-action {
     flex: 1;
     padding: 0.5rem;
@@ -4242,7 +4221,7 @@ input, textarea, button {
     transition: all 0.3s ease;
     border-radius: 6px;
     overflow: hidden;
-    font-size: 0.9rem;   /* Slightly smaller text inside quick actions */
+    font-size: 0.9rem;
   }
   .ai-action.active {
     background: var(--neon-cyan, #00ffff);
@@ -4255,14 +4234,13 @@ input, textarea, button {
     transform: scale(0.95);
   }
   
-  /* Chat Input area */
+  /* Chat input area */
   .chat-input {
     display: flex;
-    padding: 0.8rem;
+    padding: 1rem;
     border-top: 1px solid rgba(0,255,255,0.2);
     background: rgba(16,16,32,0.9);
   }
-  
   #aiQuery {
     flex: 1;
     background: transparent;
@@ -4274,7 +4252,6 @@ input, textarea, button {
     margin-right: 0.5rem;
     font-size: 0.9rem;
   }
-  
   .ai-send {
     background: var(--neon-cyan, #00ffff);
     color: #000;
@@ -4290,56 +4267,36 @@ input, textarea, button {
     transform: scale(1.03);
   }
   
-  /* Link styling in chat content */
-  .ai-link {
-    color: var(--neon-cyan, #00ffff);
-    text-decoration: underline;
-    cursor: pointer;
-  }
-  
-  /* Fact highlight bubble in some responses */
-  .ai-fact {
-    display: inline-block;
-    margin-top: 0.3rem;
-    padding: 0.3rem 0.6rem;
-    background: rgba(0,255,255,0.1);
-    border-left: 3px solid var(--neon-cyan, #00ffff);
-  }
-  
-  /* =========== Smaller Screens =========== */
+  /* Mobile responsiveness for AI chat */
   @media (max-width: 768px) {
     .ai-core {
       bottom: 8px;
       width: 85%;
-      font-size: 0.9rem; /* Reduce overall font size slightly for tablets */
+      max-width: 85%;
+      font-size: 0.9rem;
     }
     .chat-messages {
-      height: 220px; /* shorter for smaller screens */
+      height: 220px;
     }
   }
-  
   @media (max-width: 480px) {
     .ai-core {
       border-radius: 0;
       width: 100%;
       left: 50%;
       transform: translate(-50%, 150%);
-      font-size: 0.85rem; /* Even smaller text for phone screens */
+      font-size: 0.85rem;
     }
     .ai-core.active {
       transform: translate(-50%, 0);
     }
     .chat-messages {
-      height: 180px;
-      padding: 0.6rem;
+      height: 200px;
+      padding: 0.8rem;
       gap: 0.8rem;
     }
-    .quick-actions {
-      padding: 0.6rem;
-      gap: 0.3rem;
-    }
     .chat-input {
-      padding: 0.6rem;
+      padding: 0.8rem;
     }
     #aiQuery {
       padding: 0.5rem;
@@ -4354,4 +4311,17 @@ input, textarea, button {
       padding: 0.4rem;
     }
   }
+  
+  /* =======================================
+     Additional Global Adjustments
+  ======================================= */
+  /* If the CV overlay is active, adjust the AI chat position on mobile to avoid overlap.
+     This rule assumes .cv-overlay and .ai-core are siblings.
+  */
+  @media (max-width: 480px) {
+    .cv-overlay.active ~ .ai-core {
+      bottom: 250px; /* Adjust this value as needed so the chat is moved upward */
+    }
+  }
+  
   

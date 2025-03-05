@@ -1080,6 +1080,63 @@
 
 
         
+        // Add this to your app.js
+        document.addEventListener('DOMContentLoaded', () => {
+            const chatbot = {
+                toggle: document.querySelector('.chat-toggle'),
+                container: document.querySelector('.chat-container'),
+                messages: document.querySelector('.chat-messages'),
+                input: document.querySelector('.cyber-input'),
+                sendBtn: document.querySelector('.cyber-send'),
+
+                init() {
+                    this.toggle.addEventListener('click', () => this.toggleChat());
+                    this.sendBtn.addEventListener('click', () => this.handleSend());
+                    this.input.addEventListener('keypress', (e) => {
+                        if(e.key === 'Enter') this.handleSend();
+                    });
+                    
+                    this.addMessage('AI', AI.intents.greeting.responses[0], 'ai');
+                },
+
+                toggleChat() {
+                    this.container.classList.toggle('active');
+                },
+
+                addMessage(sender, text, type) {
+                    const message = document.createElement('div');
+                    message.className = `message ${type}-message`;
+                    message.innerHTML = this.sanitizeHTML(text);
+                    this.messages.appendChild(message);
+                    this.messages.scrollTop = this.messages.scrollHeight;
+                },
+
+                sanitizeHTML(text) {
+                    const temp = document.createElement('div');
+                    temp.textContent = text;
+                    return temp.innerHTML;
+                },
+
+                handleSend() {
+                    const message = this.input.value.trim();
+                    if(!message) return;
+
+                    this.addMessage('User', message, 'user');
+                    this.input.value = '';
+
+                    // Simulate AI processing delay
+                    setTimeout(() => {
+                        const response = AI.processQuery(message);
+                        this.addMessage('AI', response, 'ai');
+                    }, 500);
+                }
+            };
+
+            chatbot.init();
+        });
+
+        
+
           
             
         

@@ -3884,3 +3884,32 @@ input, textarea, button {
         padding: 0.3rem 0.6rem;
     }
 }
+
+
+/* Cyber typing effects */
+.chat-particles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 1000;
+    color: #0ff;
+    font-family: 'Courier New', monospace;
+    font-size: 8px;
+    opacity: 0.5;
+  }
+  
+  /* Glitch animation for messages */
+  .message.ai-message {
+    animation: glitch 1s infinite;
+    background: linear-gradient(45deg, #001f3f 0%, #001a35 100%);
+    border: 1px solid #0ff;
+  }
+  
+  @keyframes glitch {
+    0% { clip-path: inset(0 0 95% 0); }
+    25% { clip-path: inset(0 95% 0 0); }
+    50% { clip-path: inset(95% 0 0 0); }
+    75% { clip-path: inset(0 0 0 95%); }
+    100% { clip-path: inset(0); }
+  }

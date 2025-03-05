@@ -1080,7 +1080,6 @@
 
 
         
-        // Add this to your app.js
         document.addEventListener('DOMContentLoaded', () => {
             const chatbot = {
                 toggle: document.querySelector('.chat-toggle'),
@@ -1088,21 +1087,32 @@
                 messages: document.querySelector('.chat-messages'),
                 input: document.querySelector('.cyber-input'),
                 sendBtn: document.querySelector('.cyber-send'),
-
+                particlesContainer: null,
+        
                 init() {
+                    // Core functionality
                     this.toggle.addEventListener('click', () => this.toggleChat());
                     this.sendBtn.addEventListener('click', () => this.handleSend());
                     this.input.addEventListener('keypress', (e) => {
                         if(e.key === 'Enter') this.handleSend();
                     });
                     
+                    // Effects initialization
+                    this.initEffects();
+                    
+                    // Initial message
                     this.addMessage('AI', AI.intents.greeting.responses[0], 'ai');
                 },
-
+        
+                initEffects() {
+                    this.createTypingParticles();
+                    this.addSoundEffects();
+                },
+        
                 toggleChat() {
                     this.container.classList.toggle('active');
                 },
-
+        
                 addMessage(sender, text, type) {
                     const message = document.createElement('div');
                     message.className = `message ${type}-message`;
@@ -1110,28 +1120,73 @@
                     this.messages.appendChild(message);
                     this.messages.scrollTop = this.messages.scrollHeight;
                 },
-
+        
                 sanitizeHTML(text) {
                     const temp = document.createElement('div');
                     temp.textContent = text;
                     return temp.innerHTML;
                 },
-
+        
                 handleSend() {
                     const message = this.input.value.trim();
                     if(!message) return;
-
+        
                     this.addMessage('User', message, 'user');
                     this.input.value = '';
-
+        
                     // Simulate AI processing delay
                     setTimeout(() => {
                         const response = AI.processQuery(message);
                         this.addMessage('AI', response, 'ai');
                     }, 500);
+                },
+        
+                // ====== EFFECTS ======
+                createTypingParticles() {
+                    this.particlesContainer = document.createElement('div');
+                    this.particlesContainer.className = 'chat-particles';
+                    this.container.appendChild(this.particlesContainer);
+        
+                    this.input.addEventListener('input', () => {
+                        if(Math.random() > 0.7) {
+                            const particle = document.createElement('span');
+                            particle.textContent = Math.random() > 0.5 ? '0' : '1';
+                            particle.style.left = `${Math.random() * 100}%`;
+                            this.particlesContainer.appendChild(particle);
+                            
+                            anime({
+                                targets: particle,
+                                translateY: -50,
+                                opacity: 0,
+                                duration: 1000,
+                                easing: 'easeOutExpo',
+                                complete: () => particle.remove()
+                            });
+                        }
+                    });
+                },
+        
+                addSoundEffects() {
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    
+                    this.sendBtn.addEventListener('click', () => {
+                        const oscillator = audioContext.createOscillator();
+                        const gainNode = audioContext.createGain();
+                        
+                        oscillator.type = 'square';
+                        oscillator.frequency.setValueAtTime(1000 + Math.random() * 500, audioContext.currentTime);
+                        
+                        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                        
+                        oscillator.connect(gainNode);
+                        gainNode.connect(audioContext.destination);
+                        oscillator.start();
+                        oscillator.stop(audioContext.currentTime + 0.1);
+                    });
                 }
             };
-
+        
             chatbot.init();
         });
 

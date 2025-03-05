@@ -3618,11 +3618,9 @@ input, textarea, button {
 
 
 
-
 /********************************
   CV OVERLAY SCOPED STYLES
 *********************************/
-
 .cv-overlay {
     position: fixed;
     top: 0; 
@@ -3635,6 +3633,7 @@ input, textarea, button {
     display: none; /* Hidden by default */
     opacity: 0;    /* For fade-in animation */
     transition: opacity 0.6s ease;
+    overflow: hidden;
   }
   
   .cv-overlay.active {
@@ -3642,42 +3641,7 @@ input, textarea, button {
     opacity: 1;     /* Fade in */
   }
   
-  /* Container for the entire holographic background + modal */
-  .cv-overlay .cyber-grid-container {
-    position: relative;
-    width: 100%;
-    height: 100%;
-  }
-  
-  /* Background lines (optional) */
-  .cv-overlay .hologram-lines {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 200%;
-    height: 200%;
-    background-image: 
-      linear-gradient(rgba(0, 243, 255, 0.1) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0, 243, 255, 0.1) 1px, transparent 1px);
-    background-size: 50px 50px;
-    animation: cvScrollGrid 20s linear infinite;
-    pointer-events: none;
-  }
-  
-  @keyframes cvScrollGrid {
-    0%   { transform: translate(0,0); }
-    100% { transform: translate(-50px, -50px); }
-  }
-  
-  /* Optional particle canvas */
-  .cv-overlay .particle-canvas {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-  }
-  
-  /* CV Modal */
+  /* Main content container */
   .cv-overlay .cv-modal {
     max-width: 1000px;
     margin: 4vh auto;
@@ -3689,6 +3653,7 @@ input, textarea, button {
     animation: cvSlideInUp 0.6s ease forwards;
     overflow-y: auto;
     max-height: 90vh;
+    box-sizing: border-box;
   }
   
   @keyframes cvSlideInUp {
@@ -3969,7 +3934,7 @@ input, textarea, button {
     transform: rotateX(-90deg) translateZ(40px);
   }
   
-  /* Holographic Interface (Tabs + Search + Content) */
+  /* Holographic Interface (Tabs, Search, and Content) */
   .cv-overlay .holographic-interface {
     background: rgba(0,0,0,0.3);
     border: 1px solid rgba(255,0,255,0.3);
@@ -4124,31 +4089,32 @@ input, textarea, button {
   }
   
   /********************************
-     AI CHAT INTERFACE STYLES (Responsive)
+     AI CHAT INTERFACE STYLES (Enhanced Responsive)
   *********************************/
-  
-  /* Main Chat Container – Positioned at bottom center inside the resume */
+  /* Main Chat Container – Positioned at the bottom center within the resume */
   .ai-core {
     position: fixed;
-    bottom: 10px;
-    left: 50%;
-    width: 380px;
-    max-width: 90vw;
-    background: rgba(16,16,32,0.95);
-    border: 2px solid var(--neon-cyan, #00ffff);
-    border-radius: 10px;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-width: 480px;
+    background: rgba(16,16,32,0.97);
+    border-top: 2px solid var(--neon-cyan, #00ffff);
+    border-radius: 12px 12px 0 0;
     font-size: 0.95rem;
-    transform: translate(-50%, 150%);
+    transform: translateY(100%);
     transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 0 25px rgba(0,255,255,0.2);
+    box-shadow: 0 -5px 25px rgba(0,255,255,0.2);
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    z-index: 900; /* Lower than CV overlay (9999) if needed */
+    z-index: 10000;
+    margin: 0 auto;
   }
   
   .ai-core.active {
-    transform: translate(-50%, 0);
+    transform: translateY(0);
   }
   
   /* Chat messages container */
@@ -4178,8 +4144,8 @@ input, textarea, button {
   }
   
   @keyframes messageAppear {
-    0%   { transform: scale(0.95) translateY(10px); opacity: 0; }
-    100% { transform: scale(1)    translateY(0);  opacity: 1; }
+    0% { transform: scale(0.95) translateY(10px); opacity: 0; }
+    100% { transform: scale(1) translateY(0); opacity: 1; }
   }
   
   /* Typing animation */
@@ -4267,7 +4233,9 @@ input, textarea, button {
     transform: scale(1.03);
   }
   
-  /* Mobile responsiveness for AI chat */
+  /* =======================================
+     Responsive Adjustments for AI Chat
+  ======================================= */
   @media (max-width: 768px) {
     .ai-core {
       bottom: 8px;
@@ -4284,8 +4252,9 @@ input, textarea, button {
       border-radius: 0;
       width: 100%;
       left: 50%;
-      transform: translate(-50%, 150%);
-      font-size: 0.85rem;
+      transform: translate(-50%, 100%);
+      font-size: 0.rem;
+      bottom: 0;  /* Ensures it stays flush at the bottom */
     }
     .ai-core.active {
       transform: translate(-50%, 0);
@@ -4312,12 +4281,13 @@ input, textarea, button {
     }
   }
   
-  /* =======================================
+  /********************************
      Additional Global Adjustments
-  ======================================= */
-  /* If the CV overlay is active, adjust the AI chat position on mobile to avoid overlap.
-     This rule assumes .cv-overlay and .ai-core are siblings.
-  */
-
-  
+  *********************************/
+  /* Ensure text within grid elements wraps properly */
+  .cyber-content-grid,
+  .cyber-header-grid {
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
   

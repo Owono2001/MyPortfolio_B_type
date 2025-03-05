@@ -1079,6 +1079,291 @@
         });
 
 
+        /*****************************************************
+         CV OVERLAY & TABS LOGIC
+        *****************************************************/
+        document.addEventListener('DOMContentLoaded', () => {
+            const openCVBtn = document.getElementById('openCV');   // The button in experience section
+            const cvOverlay = document.getElementById('cvOverlay');
+            const closeIcon = document.querySelector('.cv-close');
+            const returnBtn = document.getElementById('closeCV');
+            
+            // If you have multiple tabs
+            const tabs = document.querySelectorAll('.cyber-tab');
+            const sections = document.querySelectorAll('.cyber-section');
+        
+            // 1) OPEN CV
+            if (openCVBtn && cvOverlay) {
+            openCVBtn.addEventListener('click', () => {
+                cvOverlay.classList.add('active');
+                document.body.style.overflow = 'hidden'; // optionally disable scrolling
+            });
+            }
+        
+            // 2) CLOSE CV
+            if (closeIcon && returnBtn) {
+            // Close via the "X"
+            closeIcon.addEventListener('click', () => {
+                cvOverlay.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            });
+        
+            // Close via the Return to Mainframe button
+            returnBtn.addEventListener('click', () => {
+                cvOverlay.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            });
+            }
+        
+            // 3) Tab Switching
+            tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove 'active' from all tabs
+                tabs.forEach(t => t.classList.remove('active'));
+                // Add 'active' to current
+                tab.classList.add('active');
+        
+                // Hide all sections
+                sections.forEach(sec => sec.classList.remove('active'));
+                // Show the one that matches this tab
+                const target = tab.getAttribute('data-section');
+                document.querySelector(`.cyber-section[data-section="${target}"]`)
+                        .classList.add('active');
+            });
+            });
+        });
+  
+
+        document.addEventListener('DOMContentLoaded', () => {
+            /**********************************
+             * AI Configuration & Intent Matching
+             **********************************/
+            const AI = {
+              intents: {
+                greeting: {
+                  patterns: ["hello", "hi", "hey", "greetings"],
+                  responses: [
+                    "Neural connection established. How can I assist?",
+                    "Greetings, traveler. Ask me anything about Pedro’s profile."
+                  ]
+                },
+                background: {
+                  patterns: ["where are you from", "origin", "background", "bata", "equatorial guinea", "upbringing"],
+                  responses: [
+                    `Pedro Fabian Owono Ondo Mangue originates from Equatorial Guinea, 
+                     specifically from the continental city of <strong>Bata</strong>, located in Central-West Africa. 
+                     Surrounded by the Atlantic coast, Cameroon, and Gabon.`
+                  ]
+                },
+                projects: {
+                  patterns: ["projects", "github", "repository", "work samples"],
+                  responses: [
+                    `Explore Pedro's technical projects on GitHub: 
+                     <a href='https://github.com/Owono2001' class='ai-link' target='_blank'>GitHub Profile</a>. 
+                     For more case studies, check the Projects section.`
+                  ]
+                },
+                contact: {
+                  patterns: ["contact", "email", "reach", "linkedin", "connect"],
+                  responses: [
+                    `For professional inquiries: <br/>
+                     - Email: <a href='mailto:owonoondomangue@gmail.com' class='ai-link'>
+                       owonoondomangue@gmail.com</a><br/>
+                     - LinkedIn: <a href='https://www.linkedin.com/in/pedrofondomangue/' 
+                       class='ai-link' target='_blank'>Profile</a><br/>
+                     Or use the contact form in the main portfolio.`
+                  ]
+                },
+                navigation: {
+                  patterns: ["main page", "home", "return", "go back"],
+                  responses: [
+                    `Use the "Return to Mainframe" button at the bottom of the CV overlay to navigate back.`
+                  ]
+                },
+                /* NEW Intents Below */
+                education: {
+                  patterns: ["education", "university", "apu", "dmu", "beng", "msc", "school"],
+                  responses: [
+                    `Pedro is pursuing a <strong>BEng in Computer Engineering</strong> 
+                     at Asia Pacific University (APU). 
+                     Additionally, he's enrolled in an <strong>MSc of Engineering</strong> 
+                     at De Montfort University (DMU), UK, expected to finish by September 2025. 
+                     High School at <em>San Jose De Calasanz</em>.`
+                  ]
+                },
+                experience: {
+                  patterns: ["experience", "internship", "work", "jobs", "industry", "roles"],
+                  responses: [
+                    `Pedro has completed an internship at Asia Pacific University, focusing on 
+                     multi-axis 3D printing, motion vector mapping, 
+                     and robotic operational parameters optimization.`
+                  ]
+                },
+                skills: {
+                  patterns: ["skills", "tech stack", "technical abilities", "competencies"],
+                  responses: [
+                    `Technical Skills Include: 
+                     <ul>
+                       <li>Programming: Python, C, C++, Java, R</li>
+                       <li>Embedded Tech: ROS2, Raspberry Pi, Arduino</li>
+                       <li>Web Dev: HTML, CSS, JavaScript</li>
+                     </ul>
+                     Plus digital signal processing, machine vision, and more!`
+                  ]
+                },
+                cv: {
+                  patterns: ["cv", "resume", "curriculum vitae", "profile overview"],
+                  responses: [
+                    `Please check out the 
+                     <strong>CV Overlay</strong> in the portfolio or ask me about 
+                     <em>experience, projects, or education</em> for more details.`
+                  ]
+                },
+                fallback: {
+                  responses: [
+                    `Neural pathways realigning... 
+                     Please ask about Pedro's background, education, projects, or contact info.`,
+                    `Query parameters adjusted. Try asking about professional experience or technical skills.`
+                  ]
+                }
+              },
+          
+              processQuery: function(input) {
+                const cleanInput = input.toLowerCase().trim();
+                let response = null;
+          
+                // Loop through each intent except fallback
+                for (const [intent, data] of Object.entries(this.intents)) {
+                  if (intent === 'fallback') continue;
+          
+                  // If user’s input matches any pattern in an intent
+                  if (data.patterns.some(pattern => cleanInput.includes(pattern))) {
+                    response = data.responses[
+                      Math.floor(Math.random() * data.responses.length)
+                    ];
+                    break;
+                  }
+                }
+          
+                // If no match, use fallback
+                return (
+                  response ||
+                  this.intents.fallback.responses[
+                    Math.floor(
+                      Math.random() * this.intents.fallback.responses.length
+                    )
+                  ]
+                );
+              }
+            };
+          
+            /**********************************
+             * Chat Interface Elements & Logic
+             **********************************/
+            const chatInterface = document.querySelector('.ai-core');
+            const chatMessages = document.querySelector('.chat-messages');
+            const aiQuery = document.getElementById('aiQuery');
+            const aiSend = document.querySelector('.ai-send');
+            const aiGoButton = document.querySelector('.ai-go-button'); 
+            const quickActions = document.querySelectorAll('.ai-action');
+            const aiClose = document.querySelector('.ai-close');
+          
+            // 1) Toggle Chat Window if there's a “go button”
+            if (aiGoButton && chatInterface) {
+              aiGoButton.addEventListener('click', () => {
+                chatInterface.classList.toggle('active');
+              });
+            }
+          
+            // 2) Close Chat Window 
+            if (aiClose && chatInterface) {
+              aiClose.addEventListener('click', () => {
+                chatInterface.classList.remove('active');
+              });
+            }
+          
+            // Smoothly scroll to bottom of messages
+            function scrollChatSmoothly() {
+              setTimeout(() => {
+                chatMessages.scrollTo({
+                  top: chatMessages.scrollHeight,
+                  behavior: 'smooth'
+                });
+              }, 200);
+            }
+          
+            // Add a new message bubble (AI or User)
+            function addMessage(content, isUser = false) {
+              const messageDiv = document.createElement('div');
+              messageDiv.className = `message ${isUser ? 'user-message' : 'ai-message'}`;
+              messageDiv.innerHTML = `
+                ${!isUser ? '<div class="typing-animation"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>' : ''}
+                <p class="message-content">${content}</p>
+              `;
+              chatMessages.appendChild(messageDiv);
+              scrollChatSmoothly();
+            }
+          
+            // Process user query
+            function handleQuery(query) {
+              // 1) Add user message
+              addMessage(query, true);
+          
+              // 2) Show typing indicator
+              const typingIndicator = document.createElement('div');
+              typingIndicator.className = 'ai-message';
+              typingIndicator.innerHTML = `
+                <div class="typing-animation">
+                  <div class="dot"></div>
+                  <div class="dot"></div>
+                  <div class="dot"></div>
+                </div>
+              `;
+              chatMessages.appendChild(typingIndicator);
+              chatMessages.scrollTop = chatMessages.scrollHeight;
+          
+              // 3) Simulate AI processing, remove indicator, respond
+              setTimeout(() => {
+                typingIndicator.remove();
+                const response = AI.processQuery(query);
+                addMessage(response);
+              }, 1000);
+            }
+          
+            // Send button click
+            aiSend.addEventListener('click', () => {
+              if (aiQuery.value.trim()) {
+                handleQuery(aiQuery.value);
+                aiQuery.value = '';
+              }
+            });
+          
+            // Press Enter to send
+            aiQuery.addEventListener('keypress', (e) => {
+              if (e.key === 'Enter' && aiQuery.value.trim()) {
+                handleQuery(aiQuery.value);
+                aiQuery.value = '';
+              }
+            });
+          
+            // Quick Actions (with haptic & visual feedback)
+            quickActions.forEach(button => {
+              button.addEventListener('click', (e) => {
+                // Haptic feedback
+                if (navigator.vibrate) {
+                  navigator.vibrate(30);
+                }
+                const queryType = e.currentTarget.dataset.query;
+                handleQuery(queryType);
+          
+                // Visual feedback
+                button.classList.add('active');
+                setTimeout(() => button.classList.remove('active'), 200);
+              });
+            });
+          });
+        
+
         // Initialize function when page loads
         document.addEventListener('DOMContentLoaded', () => {
             if(document.querySelector('#cyberIntro')) {

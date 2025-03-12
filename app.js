@@ -771,10 +771,10 @@
             
                 // Create Camera
                 this.camera = new THREE.PerspectiveCamera(
-                  45,
-                  rect.width / rect.height,
-                  0.1,
-                  1000
+                    45,
+                    window.innerWidth / window.innerHeight,
+                    0.1,
+                    1000
                 );
                 this.camera.position.set(0, 0, 8);
             
@@ -785,7 +785,7 @@
                   alpha: true
                 });
                 this.renderer.setPixelRatio(window.devicePixelRatio);
-                this.renderer.setSize(rect.width, rect.height);
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
               }
             
               // ----------------------------------

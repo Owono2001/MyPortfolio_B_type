@@ -764,7 +764,7 @@
               // ----------------------------------
               initScene() {
                 // Get container's width/height
-                const rect = this.container.getBoundingClientRect();
+                //const rect = this.container.getBoundingClientRect();
             
                 // Create Scene
                 this.scene = new THREE.Scene();
@@ -776,7 +776,8 @@
                     0.1,
                     1000
                 );
-                this.camera.position.set(0, 0, 8);
+                this.camera.position.set(0, 0, 12);
+                this.camera.lookAt(0, 0, 0);
             
                 // Create Renderer
                 this.renderer = new THREE.WebGLRenderer({
@@ -844,25 +845,24 @@
               // ----------------------------------
               createEarth() {
                 const geometry = new THREE.SphereGeometry(3.5, 64, 64);
-            
                 const loader = new THREE.TextureLoader();
                 const earthTexture = loader.load('assets/textures/earth-texture.jpg');
-            
+
                 this.earthMaterial = new THREE.MeshPhongMaterial({
-                  map: earthTexture,
-                  bumpScale: 0.1,
-                  specular: new THREE.Color(0x222222),
-                  emissive: 0x00f3ff,
-                  emissiveIntensity: 0.1,
-                  shininess: 10,
-                  transparent: true
+                    map: earthTexture,
+                    bumpScale: 0.1,
+                    specular: new THREE.Color(0x222222),
+                    emissive: 0x00f3ff,
+                    emissiveIntensity: 0.1,
+                    shininess: 10,
+                    transparent: true
                 });
-            
+
                 this.earth = new THREE.Mesh(geometry, this.earthMaterial);
                 this.earth.name = 'earth';
                 this.scene.add(this.earth);
-              }
-            
+            }
+
               // ----------------------------------
               // 5) ATMOSPHERE
               // ----------------------------------
@@ -990,40 +990,38 @@
               }
             
               handleHover(e) {
+                 // NOTE: If you reference `intersects`, you need to define:
+                const intersects = this.raycaster.intersectObject(this.earth);
+
                 const { clientX, clientY } = e;
                 this.mouse.x = (clientX / window.innerWidth) * 2 - 1;
                 this.mouse.y = -((clientY / window.innerHeight) * 2 - 1);
-            
-                
-            
+
                 if (intersects.length > 0) {
-                  const objName = intersects[0].object.name;
-            
-                  if (objName === 'earth') {
-                    gsap.to(this.earthMaterial, { emissiveIntensity: 0.3, duration: 0.3 });
-                    this.tooltip.textContent = 'Earth';
-                    this.tooltip.style.opacity = '1';
-                  } else if (objName === 'connectionPoint') {
-                    this.tooltip.textContent = 'Network Node';
-                    this.tooltip.style.opacity = '1';
-                  }
-            
-                  this.tooltip.style.left = clientX + 'px';
-                  this.tooltip.style.top = clientY + 'px';
+                    const objName = intersects[0].object.name;
+                    if (objName === 'earth') {
+                        gsap.to(this.earthMaterial, { emissiveIntensity: 0.3, duration: 0.3 });
+                        this.tooltip.textContent = 'Earth';
+                        this.tooltip.style.opacity = '1';
+                    } else if (objName === 'connectionPoint') {
+                        this.tooltip.textContent = 'Network Node';
+                        this.tooltip.style.opacity = '1';
+                    }
+                    this.tooltip.style.left = clientX + 'px';
+                    this.tooltip.style.top = clientY + 'px';
                 } else {
-                  gsap.to(this.earthMaterial, { emissiveIntensity: 0.1, duration: 0.3 });
-                  this.tooltip.style.opacity = '0';
+                    gsap.to(this.earthMaterial, { emissiveIntensity: 0.1, duration: 0.3 });
+                    this.tooltip.style.opacity = '0';
                 }
-              }
+            }
             
               handleClick(e) {
                 this.raycaster.setFromCamera(this.mouse, this.camera);
                 const intersects = this.raycaster.intersectObject(this.earth);
-            
                 if (intersects.length > 0) {
-                  this.createPulseEffect(intersects[0].point);
+                    this.createPulseEffect(intersects[0].point);
                 }
-              }
+            }
             
               createPulseEffect(position) {
                 const geo = new THREE.SphereGeometry(0.05, 16, 16);
@@ -1049,16 +1047,13 @@
               // 9) RESIZE HANDLER
               // ----------------------------------
               setupResizeHandler() {
-                const resizeObserver = new ResizeObserver(entries => {
-                  for (let entry of entries) {
-                    const { width, height } = entry.contentRect;
-                    this.camera.aspect = width / height;
+                window.addEventListener('resize', () => {
+                    this.camera.aspect = window.innerWidth / window.innerHeight;
                     this.camera.updateProjectionMatrix();
-                    this.renderer.setSize(width, height);
-                  }
+                    this.renderer.setSize(window.innerWidth, window.innerHeight);
                 });
-                resizeObserver.observe(this.container);
-              }
+            }
+    
             
               // ----------------------------------
               // 10) ANIMATION LOOP
@@ -1068,38 +1063,38 @@
             
                 // Always auto-rotate
                 this.earth.rotation.y += this.autoRotateSpeed;
-            
+
                 // Subtle float on points
                 const t = Date.now() * 0.002;
                 this.connectionPoints.forEach((point, i) => {
-                  point.position.y += Math.sin(t + i) * 0.0005;
-                  point.rotation.x += 0.01;
-                  point.rotation.y += 0.01;
+                    point.position.y += Math.sin(t + i) * 0.0005;
+                    point.rotation.x += 0.01;
+                    point.rotation.y += 0.01;
                 });
-            
+
                 // Render
                 this.renderer.render(this.scene, this.camera);
-              }
             }
+        }
         
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
             const globe = new CyberGlobe();
-            
+
             // Animate statistics
             gsap.utils.toArray('.stat-value').forEach(stat => {
                 gsap.to(stat, {
                     innerText: stat.dataset.count,
                     duration: 2,
-                    snap: "innerText",
-                    ease: "power2.out",
+                    snap: 'innerText',
+                    ease: 'power2.out',
                     delay: 1
                 });
             });
-        
+
             // Mobile touch handling
             let isTouchDevice = 'ontouchstart' in window;
-            if (isTouchDevice) {
+            if (isTouchDevice && globe.controls) {
                 document.body.style.cursor = 'none';
                 globe.controls.enableZoom = false;
             }

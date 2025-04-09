@@ -3618,21 +3618,6 @@ input, textarea, button {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* ===== CYBER CHATBOT ===== */
 .cyber-chatbot {
     position: fixed;
@@ -3917,3 +3902,81 @@ input, textarea, button {
 
 
  
+  /* ============================================= */
+/* === GLOBE OVERLAY STYLING (REVISED)       === */
+/* Add/Replace this block in your style.css file */
+/* ============================================= */
+
+.globe-overlay {
+    position: absolute; /* Allows precise positioning within the parent (#cyber-globe) */
+
+    /* --- Positioning: Top Center --- */
+    top: 5%;          /* Distance from the top edge of the #cyber-globe section */
+    left: 50%;        /* Position the left edge of the box at the horizontal center */
+    transform: translateX(-50%); /* Shift the box left by half its own width to truly center it */
+    /* --- End Positioning --- */
+
+    z-index: 2;       /* Ensure overlay is above the canvas (which should be z-index: 1) */
+    width: auto;      /* Let the box size itself based on content */
+    max-width: 80%;   /* Prevent it from getting too wide on large screens */
+    padding: 20px 30px; /* More padding (top/bottom, left/right) */
+    background: rgba(0, 10, 20, 0.8); /* Darker, slightly more opaque background */
+    border: 1px solid #00f3ff;    /* Cyan border */
+    border-radius: 8px;           /* Rounded corners */
+    color: #e0e0e0;               /* Default light text color */
+    pointer-events: none;         /* Allow mouse interaction with the globe underneath */
+    box-shadow: 0 0 25px rgba(0, 243, 255, 0.5); /* Slightly stronger cyan glow */
+    text-align: center;           /* Center align all text within the box */
+}
+
+/* --- Title inside the overlay --- */
+/* Make sure your HTML uses <h2 class="section-title"> or similar */
+.globe-overlay .section-title {
+    color: #00f3ff; /* Cyan */
+    margin: 0 0 20px 0; /* Space below title */
+    font-size: 1.6em; /* Slightly larger title */
+    font-weight: bold;
+    text-shadow: 0 0 6px rgba(0, 243, 255, 0.8);
+    text-transform: uppercase; /* Make it match "WORK OPERATIONS" */
+    letter-spacing: 1.5px;
+}
+
+/* --- Container for the statistics --- */
+.globe-stats {
+    display: inline-flex; /* Allows centering within the text-align:center parent */
+    justify-content: center; /* Center items if they wrap */
+    align-items: flex-start; /* Align items to the top */
+    gap: 50px;        /* Increase space between stat items */
+    flex-wrap: wrap;    /* Allow stats to wrap on smaller screens */
+}
+
+/* --- Individual stat item (number + label) --- */
+.stat-item {
+    text-align: center; /* Center text within the item */
+    min-width: 120px; /* Give each item some minimum width */
+}
+
+/* --- The stat number itself (e.g., 37) --- */
+.stat-value {
+    display: block; /* Ensure it takes its own line */
+    font-size: 2.8em; /* Larger number */
+    font-weight: 700; /* Bold */
+    color: #ff00ff; /* Pink */
+    margin-bottom: 8px; /* Space between number and label */
+    line-height: 1;   /* Tight line height */
+    /* The '0' starting value should be in your HTML like: */
+    /* <div class="stat-value" data-count="37">0</div> */
+}
+
+/* --- The label below the number --- */
+.stat-label {
+    display: block; /* Ensure it takes its own line */
+    font-size: 0.8em;
+    text-transform: uppercase;
+    letter-spacing: 2px; /* Wider spacing */
+    color: #cccccc;
+}
+
+/* ============================================= */
+/* === END OF GLOBE OVERLAY STYLING          === */
+/* ============================================= */

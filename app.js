@@ -1,6 +1,27 @@
 // ===== ULTIMATE PERFORMANCE CORE =====
 (function() {
     // ======== DEVICE DETECTION ========
+    // ======== FIREBASE CONFIGURATION ========
+    // PASTE YOUR ACTUAL FIREBASE CONFIG OBJECT HERE:
+    const firebaseConfig = {
+        apiKey: "AIzaSyBn2ZmgS7CMEZbmf68goWDl1Tob1DvPTrA", // <-- Replace
+        authDomain: "portfoliovisitors-1ec8b.firebaseapp.com", // <-- Replace
+        databaseURL: "https://portfoliovisitors-1ec8b-default-rtdb.asia-southeast1.firebasedatabase.app", // <-- Replace & Check Region
+        projectId: "portfoliovisitors-1ec8b", // <-- Replace
+        storageBucket: "portfoliovisitors-1ec8b.firebasestorage.app", // <-- Replace
+        messagingSenderId: "240522924083", // <-- Replace
+        appId: "1:240522924083:web:490670945797fab8afd346" // <-- Replace
+    };
+
+    // Initialize Firebase (and store the database reference)
+    let database = null; // Make database variable accessible globally within the IIFE
+    try {
+        firebase.initializeApp(firebaseConfig);
+        database = firebase.database(); // Assign to the variable
+        console.log("Firebase initialized successfully.");
+    } catch (error) {
+        console.error("Firebase initialization failed:", error);
+    }
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     const isTouchDevice = 'ontouchstart' in window;
 
@@ -13,6 +34,7 @@
          (All code related to “lenis” has been taken out.)
     ************************************************************/
 
+    
 
          
 
@@ -730,6 +752,83 @@
         }
 
 
+        // ======== GEOLOCATION & VISITOR TRACKING ========
+        async function trackVisitorLocation() {
+            if (!database) { // Check if Firebase initialized correctly
+                console.log("Firebase not available, skipping visitor tracking.");
+                return;
+            }
+            const visitorsRef = database.ref('active_visitors'); // Path in Firebase DB
+            let visitorId = `visitor_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+            let visitorCountryCode = 'Unknown'; // Store country code
+
+            try {
+                // 1. Get Geolocation using ip-api.com
+                // Fetch only status, message, countryCode fields
+                const response = await fetch('http://ip-api.com/json/?fields=status,message,countryCode');
+                if (!response.ok) { // Check if the fetch itself failed (network error, etc.)
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const geoData = await response.json();
+
+                if (geoData.status === 'success' && geoData.countryCode) {
+                    visitorCountryCode = geoData.countryCode;
+                    console.log(`Visitor location code detected: ${visitorCountryCode}`);
+                } else {
+                    // Log if status is fail or countryCode is missing
+                    console.warn(`Could not determine visitor country code. Status: ${geoData.status}, Message: ${geoData.message || 'N/A'}`);
+                    visitorCountryCode = 'Unknown'; // Ensure it's set to Unknown
+                }
+
+                // 2. Store data in Firebase, regardless of lookup success
+                const visitorData = {
+                    country: visitorCountryCode, // Store the country code ('Unknown' if failed)
+                    timestamp: firebase.database.ServerValue.TIMESTAMP // Use server time
+                };
+                const visitorNodeRef = visitorsRef.child(visitorId);
+
+                // Use try...catch for Firebase operations too
+                try {
+                    await visitorNodeRef.set(visitorData);
+                    await visitorNodeRef.onDisconnect().remove(); // Auto-remove when user leaves
+                    console.log(`Visitor <span class="math-inline">\{visitorId\} \(</span>{visitorCountryCode}) added to Firebase.`);
+                } catch (dbError) {
+                    console.error(`Firebase error for visitor ${visitorId}:`, dbError);
+                }
+
+            } catch (error) {
+                console.error("Error in trackVisitorLocation:", error);
+                // Attempt to log an 'Error' state visitor if fetch failed before getting geoData
+                if (database) { // Double check database is available
+                    const errorData = { country: 'Error', timestamp: firebase.database.ServerValue.TIMESTAMP };
+                    try {
+                        await database.ref(`active_visitors/${visitorId}`).set(errorData);
+                        await database.ref(`active_visitors/${visitorId}`).onDisconnect().remove();
+                    } catch (dbError) {
+                        console.error("Failed to write error state to Firebase:", dbError);
+                    }
+                }
+            }
+
+            // 3. Simple periodic cleanup (runs once 5 mins after page load)
+            setTimeout(() => cleanupOldVisitors(visitorsRef), 5 * 60 * 1000);
+        }
+
+        function cleanupOldVisitors(visitorsRef) {
+            if (!database) return; // Don't run if Firebase isn't working
+            const cutoff = Date.now() - (30 * 60 * 1000); // Keep visitors from last 30 minutes
+            visitorsRef.orderByChild('timestamp').endAt(cutoff).once('value', snapshot => {
+                snapshot.forEach(childSnapshot => {
+                    console.log(`Cleaning up old visitor: ${childSnapshot.key}`);
+                    childSnapshot.ref.remove().catch(error => { // Add catch for remove errors
+                        console.error(`Failed to remove old visitor ${childSnapshot.key}:`, error);
+                    });
+                });
+            }, error => { // Add error callback for the 'once' call itself
+                console.error("Error fetching old visitors for cleanup:", error);
+            });
+        }
+
         class CyberGlobe {
             constructor(containerId = 'globeCanvas') {
                 this.container = document.getElementById(containerId);
@@ -739,11 +838,23 @@
                 }
             
                 // === CONFIG ===
+                
                 this.autoRotateSpeed = 0.0005;      // How fast the Earth spins on its own
                 this.connectionCount = 400;         // # of small "network" points on Earth
                 this.arcCount = 10;                // # of arcs that animate in/out
                 this.isUserInteracting = false;     // We'll keep it false (no orbiting)
-            
+                this.activeVisitorMarkers = {}; // Stores marker objects { 'US': marker1, 'MY': marker2 }
+                this.activeCountries = {};     // Stores counts of visitors per country { 'US': 2, 'MY': 1 }
+                this.countryCoords = this.getCountryCoordinates(); // Coordinates lookup object - WILL BE ADDED LATER
+                this.markerMaterial = new THREE.MeshBasicMaterial({
+                    color: 0xff00ff, // Marker color (magenta)
+                    transparent: true,
+                    opacity: 0.9,
+                    depthTest: false, // Try rendering markers on top
+                    side: THREE.DoubleSide // Make sure material is visible from inside/outside
+                });
+               this.markerGeometry = new THREE.SphereGeometry(0.05, 16, 16); // Small sphere geometry
+               // === END OF NEW PROPERTIES ===
                 this.initScene();
                 this.addLights();
                 this.createStarField();
@@ -754,10 +865,264 @@
                 this.addInteractivity();
                 this.setupResizeHandler();
                 this.animate();
+
+                // === ADD THIS BLOCK BELOW to start listening for Firebase data ===
+                if (database) { // Check if Firebase initialized properly
+                    this.listenForVisitors();
+                    console.log("CyberGlobe is now listening for visitors.");
+                } else {
+                    console.warn("Firebase not available, globe visitor markers disabled.");
+                }
+                // === END OF BLOCK TO ADD ===
                 // Add weather visualization
                 this.weatherOverlay = null;
                 this.isWeatherVisible = false;
+
+
               }
+        // === NEW Function to Map Country Codes to Lat/Lon ===
+        // (This is the large, expanded version)
+        getCountryCoordinates() {
+            // Data source: Combined/approximated from various public datasets
+            // Format: 'COUNTRY_CODE': { lat: Latitude, lon: Longitude }
+            return {
+                'AF': { lat: 33.9391, lon: 67.7100 }, 'AL': { lat: 41.1533, lon: 20.1683 },
+                'DZ': { lat: 28.0339, lon: 1.6596 },  'AD': { lat: 42.5462, lon: 1.6016 },
+                'AO': { lat: -11.2027, lon: 17.8739 },'AR': { lat: -38.4161, lon: -63.6167 },
+                'AM': { lat: 40.0691, lon: 45.0382 }, 'AU': { lat: -25.2744, lon: 133.7751 },
+                'AT': { lat: 47.5162, lon: 14.5501 }, 'AZ': { lat: 40.1431, lon: 47.5769 },
+                'BH': { lat: 25.9304, lon: 50.6378 }, 'BD': { lat: 23.6850, lon: 90.3563 },
+                'BY': { lat: 53.7098, lon: 27.9534 }, 'BE': { lat: 50.5039, lon: 4.4699 },
+                'BZ': { lat: 17.1899, lon: -88.4976 },'BJ': { lat: 9.3077, lon: 2.3158 },
+                'BT': { lat: 27.5142, lon: 90.4336 }, 'BO': { lat: -16.2902, lon: -63.5887 },
+                'BA': { lat: 43.9159, lon: 17.6791 }, 'BW': { lat: -22.3285, lon: 24.6849 },
+                'BR': { lat: -14.2350, lon: -51.9253 },'BN': { lat: 4.5353, lon: 114.7277 },
+                'BG': { lat: 42.7339, lon: 25.4858 }, 'BF': { lat: 12.2383, lon: -1.5616 },
+                'BI': { lat: -3.3731, lon: 29.9189 }, 'KH': { lat: 12.5657, lon: 104.9910 },
+                'CM': { lat: 7.3697, lon: 12.3547 },  'CA': { lat: 56.1304, lon: -106.3468 },
+                'CV': { lat: 16.0021, lon: -24.0132 },'CF': { lat: 6.6111, lon: 20.9394 },
+                'TD': { lat: 15.4542, lon: 18.7322 }, 'CL': { lat: -35.6751, lon: -71.5430 },
+                'CN': { lat: 35.8617, lon: 104.1954 },'CO': { lat: 4.5709, lon: -74.2973 },
+                'KM': { lat: -11.8750, lon: 43.8722 },'CG': { lat: -0.2280, lon: 15.8277 },
+                'CD': { lat: -4.0383, lon: 21.7587 }, 'CR': { lat: 9.7489, lon: -83.7534 },
+                'CI': { lat: 7.5400, lon: -5.5471 },  'HR': { lat: 45.1000, lon: 15.2000 },
+                'CU': { lat: 21.5218, lon: -77.7812 },'CY': { lat: 35.1264, lon: 33.4299 },
+                'CZ': { lat: 49.8175, lon: 15.4730 }, 'DK': { lat: 56.2639, lon: 9.5018 },
+                'DJ': { lat: 11.8251, lon: 42.5903 }, 'DO': { lat: 18.7357, lon: -70.1627 },
+                'EC': { lat: -1.8312, lon: -78.1834 },'EG': { lat: 26.8206, lon: 30.8025 },
+                'SV': { lat: 13.7942, lon: -88.8965 },'GQ': { lat: 1.6508, lon: 10.2679 },
+                'ER': { lat: 15.1794, lon: 39.7823 }, 'EE': { lat: 58.5953, lon: 25.0136 },
+                'SZ': { lat: -26.5225, lon: 31.4659 },'ET': { lat: 9.1450, lon: 40.4897 },
+                'FJ': { lat: -17.7134, lon: 178.0650 },'FI': { lat: 61.9241, lon: 25.7482 },
+                'FR': { lat: 46.2276, lon: 2.2137 },  'GA': { lat: -0.8037, lon: 11.6094 },
+                'GM': { lat: 13.4432, lon: -15.3101 },'GE': { lat: 42.3154, lon: 43.3569 },
+                'DE': { lat: 51.1657, lon: 10.4515 }, 'GH': { lat: 7.9465, lon: -1.0232 },
+                'GR': { lat: 39.0742, lon: 21.8243 }, 'GD': { lat: 12.1165, lon: -61.6790 },
+                'GT': { lat: 15.7835, lon: -90.2308 },'GN': { lat: 9.9456, lon: -9.6966 },
+                'GW': { lat: 11.8037, lon: -15.1804 },'GY': { lat: 4.8604, lon: -58.9302 },
+                'HT': { lat: 18.9712, lon: -72.2852 },'HN': { lat: 15.1999, lon: -86.2419 },
+                'HU': { lat: 47.1625, lon: 19.5033 }, 'IS': { lat: 64.9631, lon: -19.0208 },
+                'IN': { lat: 20.5937, lon: 78.9629 }, 'ID': { lat: -0.7893, lon: 113.9213 },
+                'IR': { lat: 32.4279, lon: 53.6880 }, 'IQ': { lat: 33.2232, lon: 43.6793 },
+                'IE': { lat: 53.4129, lon: -8.2439 }, 'IL': { lat: 31.0461, lon: 34.8516 },
+                'IT': { lat: 41.8719, lon: 12.5674 }, 'JM': { lat: 18.1096, lon: -77.2975 },
+                'JP': { lat: 36.2048, lon: 138.2529 },'JO': { lat: 30.5852, lon: 36.2384 },
+                'KZ': { lat: 48.0196, lon: 66.9237 }, 'KE': { lat: -0.0236, lon: 37.9062 },
+                'KI': { lat: -3.3704, lon: -168.7340 },'KP': { lat: 40.3399, lon: 127.5101 },
+                'KR': { lat: 35.9078, lon: 127.7669 },'KW': { lat: 29.3117, lon: 47.4818 },
+                'KG': { lat: 41.2044, lon: 74.7661 }, 'LA': { lat: 19.8563, lon: 102.4955 },
+                'LV': { lat: 56.8796, lon: 24.6032 }, 'LB': { lat: 33.8547, lon: 35.8623 },
+                'LS': { lat: -29.6100, lon: 28.2336 },'LR': { lat: 6.4281, lon: -9.4295 },
+                'LY': { lat: 26.3351, lon: 17.2283 }, 'LI': { lat: 47.1660, lon: 9.5554 },
+                'LT': { lat: 55.1694, lon: 23.8813 }, 'LU': { lat: 49.8153, lon: 6.1296 },
+                'MG': { lat: -18.7669, lon: 46.8691 },'MW': { lat: -13.2543, lon: 34.3015 },
+                'MY': { lat: 4.2105, lon: 101.9758 }, 'MV': { lat: 3.2028, lon: 73.2207 },
+                'ML': { lat: 17.5707, lon: -3.9962 }, 'MT': { lat: 35.9375, lon: 14.3754 },
+                'MH': { lat: 7.1315, lon: 171.1845 }, 'MR': { lat: 21.0079, lon: -10.9408 },
+                'MU': { lat: -20.3484, lon: 57.5522 },'MX': { lat: 23.6345, lon: -102.5528 },
+                'FM': { lat: 7.4256, lon: 150.5508 }, 'MD': { lat: 47.4116, lon: 28.3699 },
+                'MC': { lat: 43.7384, lon: 7.4246 },  'MN': { lat: 46.8625, lon: 103.8467 },
+                'ME': { lat: 42.7087, lon: 19.3744 }, 'MA': { lat: 31.7917, lon: -7.0926 },
+                'MZ': { lat: -18.6657, lon: 35.5296 },'MM': { lat: 21.9162, lon: 95.9560 },
+                'NA': { lat: -22.9576, lon: 18.4904 },'NR': { lat: -0.5228, lon: 166.9315 },
+                'NP': { lat: 28.3949, lon: 84.1240 }, 'NL': { lat: 52.1326, lon: 5.2913 },
+                'NZ': { lat: -40.9006, lon: 174.8860 },'NI': { lat: 12.8654, lon: -85.2072 },
+                'NE': { lat: 17.6078, lon: 8.0817 },  'NG': { lat: 9.0820, lon: 8.6753 },
+                'MK': { lat: 41.6086, lon: 21.7453 }, 'NO': { lat: 60.4720, lon: 8.4689 },
+                'OM': { lat: 21.5126, lon: 55.9233 }, 'PK': { lat: 30.3753, lon: 69.3451 },
+                'PW': { lat: 7.5150, lon: 134.5825 }, 'PA': { lat: 8.5380, lon: -80.7821 },
+                'PG': { lat: -6.3150, lon: 143.9555 },'PY': { lat: -23.4425, lon: -58.4438 },
+                'PE': { lat: -9.1900, lon: -75.0152 },'PH': { lat: 12.8797, lon: 121.7740 },
+                'PL': { lat: 51.9194, lon: 19.1451 }, 'PT': { lat: 39.3999, lon: -8.2245 },
+                'QA': { lat: 25.3548, lon: 51.1839 }, 'RO': { lat: 45.9432, lon: 24.9668 },
+                'RU': { lat: 61.5240, lon: 105.3188 },'RW': { lat: -1.9403, lon: 29.8739 },
+                'WS': { lat: -13.7590, lon: -172.1046 },'SM': { lat: 43.9424, lon: 12.4578 },
+                'ST': { lat: 0.1864, lon: 6.6131 },   'SA': { lat: 23.8859, lon: 45.0792 },
+                'SN': { lat: 14.4974, lon: -14.4524 },'RS': { lat: 44.0165, lon: 21.0059 },
+                'SC': { lat: -4.6796, lon: 55.4920 }, 'SL': { lat: 8.4606, lon: -11.7799 },
+                'SG': { lat: 1.3521, lon: 103.8198 },'SK': { lat: 48.6690, lon: 19.6990 },
+                'SI': { lat: 46.1512, lon: 14.9955 }, 'SB': { lat: -9.6457, lon: 160.1562 },
+                'SO': { lat: 5.1521, lon: 46.1996 },  'ZA': { lat: -30.5595, lon: 22.9375 },
+                'SS': { lat: 6.8770, lon: 31.3070 },  'ES': { lat: 40.4637, lon: -3.7492 },
+                'LK': { lat: 7.8731, lon: 80.7718 },  'SD': { lat: 12.8628, lon: 30.2176 },
+                'SR': { lat: 3.9193, lon: -56.0278 }, 'SE': { lat: 60.1282, lon: 18.6435 },
+                'CH': { lat: 46.8182, lon: 8.2275 },  'SY': { lat: 34.8021, lon: 38.9968 },
+                'TW': { lat: 23.6978, lon: 120.9605 },'TJ': { lat: 38.8610, lon: 71.2761 },
+                'TZ': { lat: -6.3690, lon: 34.8888 }, 'TH': { lat: 15.8700, lon: 100.9925 },
+                'TL': { lat: -8.8742, lon: 125.7275 },'TG': { lat: 8.6195, lon: 0.8248 },
+                'TO': { lat: -21.1790, lon: -175.1982 },'TT': { lat: 10.6918, lon: -61.2225 },
+                'TN': { lat: 33.8869, lon: 9.5375 },  'TR': { lat: 38.9637, lon: 35.2433 },
+                'TM': { lat: 38.9697, lon: 59.5563 }, 'TV': { lat: -7.1095, lon: 177.6493 },
+                'UG': { lat: 1.3733, lon: 32.2903 },  'UA': { lat: 48.3794, lon: 31.1656 },
+                'AE': { lat: 23.4241, lon: 53.8478 }, 'GB': { lat: 55.3781, lon: -3.4360 },
+                'US': { lat: 38.9637, lon: -95.7129 },'UY': { lat: -32.5228, lon: -55.7658 },
+                'UZ': { lat: 41.3775, lon: 64.5853 }, 'VU': { lat: -15.3767, lon: 166.9592 },
+                'VE': { lat: 6.4238, lon: -66.5897 }, 'VN': { lat: 14.0583, lon: 108.2772 },
+                'YE': { lat: 15.5527, lon: 48.5164 }, 'ZM': { lat: -13.1339, lon: 27.8493 },
+                'ZW': { lat: -19.0154, lon: 29.1549 },
+                // Special Codes
+                'Unknown': null, 'Error': null
+            };
+        }
+
+        // === NEW Function to Convert Lat/Lon to 3D point ===
+        latLonToVector3(lat, lon, radius) {
+            // Ensure inputs are numbers
+            const latRad = THREE.MathUtils.degToRad(lat);
+            const lonRad = THREE.MathUtils.degToRad(lon);
+
+            // Calculate coordinates using the standard formula
+            // Note: Three.js uses Y-up coordinate system by default.
+            // Adjusting calculation for Three.js sphere geometry where:
+            // X = radius * sin(phi) * sin(theta)
+            // Y = radius * cos(phi)
+            // Z = radius * sin(phi) * cos(theta)
+            // where phi is polar angle (from +Y axis), theta is azimuthal angle (around Y axis)
+
+            const phi = Math.PI / 2 - latRad; // Angle from the +Y axis
+            const theta = lonRad; // Angle around the Y axis
+
+            const x = radius * Math.sin(phi) * Math.cos(theta);
+            const y = radius * Math.cos(phi);
+            const z = radius * Math.sin(phi) * Math.sin(theta);
+
+            return new THREE.Vector3(x, y, z);
+        }
+
+        // === NEW Function to Add/Update a marker ===
+        updateVisitorMarker(countryCode) {
+            // Ensure countryCode is valid and we have coordinates
+            if (!countryCode || !this.countryCoords[countryCode]) {
+                console.warn(`Skipping marker creation for invalid or unknown country code: ${countryCode}`);
+                return;
+            }
+            // Skip if marker already exists (it means count > 1, handled by listenForVisitors logic)
+            if (this.activeVisitorMarkers[countryCode]) {
+                return;
+            }
+
+            const coords = this.countryCoords[countryCode];
+            // Place slightly above the Earth's surface (adjust 3.55 based on your earth radius + desired height)
+            const markerPosition = this.latLonToVector3(coords.lat, coords.lon, 3.55);
+
+            // Create the marker mesh
+            const marker = new THREE.Mesh(this.markerGeometry, this.markerMaterial);
+            marker.position.copy(markerPosition);
+            marker.name = `marker_${countryCode}`; // Assign name for potential raycasting later
+            marker.lookAt(0, 0, 0); // Point the marker towards the center (optional)
+
+            // Add the marker as a child of the Earth mesh so it rotates along with it
+            if (this.earth) { // Ensure earth exists before adding
+                this.earth.add(marker);
+                this.activeVisitorMarkers[countryCode] = marker; // Store reference
+                console.log(`Added marker for ${countryCode}`);
+
+                // Simple appear animation using GSAP
+                marker.scale.set(0.1, 0.1, 0.1); // Start small
+                gsap.to(marker.scale, { x: 1, y: 1, z: 1, duration: 0.5, ease: "back.out(1.7)" });
+            } else {
+                console.error("Cannot add marker: Earth object not found.");
+            }
+        }
+
+        // === NEW Function to Remove a marker ===
+        removeVisitorMarker(countryCode) {
+            const marker = this.activeVisitorMarkers[countryCode];
+            if (marker) {
+                // Simple disappear animation using GSAP
+                gsap.to(marker.scale, {
+                    x: 0.1, y: 0.1, z: 0.1, // Shrink down
+                    duration: 0.5,
+                    ease: "power1.in",
+                    onComplete: () => { // Remove the marker *after* the animation completes
+                        if (this.earth && marker.parent === this.earth) { // Check if still attached
+                            this.earth.remove(marker);
+                        }
+                        // Clean up Three.js resources if necessary (optional for simple geometry/material)
+                        // marker.geometry.dispose();
+                        // marker.material.dispose();
+                    }
+                });
+                delete this.activeVisitorMarkers[countryCode]; // Remove reference immediately
+                console.log(`Removed marker for ${countryCode}`);
+            } else {
+                console.warn(`Attempted to remove marker for ${countryCode}, but it was not found.`);
+            }
+        }
+
+        // === PASTE THIS FUNCTION BELOW ===
+        listenForVisitors() {
+            if (!database) return; // Safety check
+
+            const visitorsRef = database.ref('active_visitors');
+
+            // When a visitor is added to Firebase
+            visitorsRef.on('child_added', (snapshot) => {
+                const visitorData = snapshot.val();
+                const visitorKey = snapshot.key; // Get the unique key (visitorId)
+
+                if (visitorData && visitorData.country) {
+                    const country = visitorData.country;
+                    // Increment count for this country
+                    this.activeCountries[country] = (this.activeCountries[country] || 0) + 1;
+                    console.log(`Visitor added from ${country}. Total for ${country}: ${this.activeCountries[country]}`);
+                    // Add a marker ONLY if it's the first visitor from this country
+                    if (this.activeCountries[country] === 1) {
+                        this.updateVisitorMarker(country); // Pass country code
+                    }
+                } else {
+                    console.warn(`Received invalid visitor data on add: ${visitorKey}`, visitorData);
+                }
+            }, (error) => { // Add error handling for the listener itself
+                console.error("Firebase 'child_added' listener error:", error);
+            });
+
+            // When a visitor is removed from Firebase (onDisconnect or cleanup)
+            visitorsRef.on('child_removed', (snapshot) => {
+                const visitorData = snapshot.val();
+                const visitorKey = snapshot.key;
+
+                // Check if data exists before trying to access properties
+                if (visitorData && visitorData.country) {
+                    const country = visitorData.country;
+                    // Decrement count, ensuring it doesn't go below zero
+                    this.activeCountries[country] = Math.max(0, (this.activeCountries[country] || 1) - 1);
+                    console.log(`Visitor removed from ${country}. Remaining for ${country}: ${this.activeCountries[country]}`);
+                    // Remove the marker ONLY if the count drops to zero
+                    if (this.activeCountries[country] === 0) {
+                        delete this.activeCountries[country]; // Clean up the count entry
+                        this.removeVisitorMarker(country); // Pass country code
+                    }
+                } else {
+                    // Log if removed data is missing expected fields
+                    console.warn(`Received invalid visitor data on remove: ${visitorKey}`, visitorData);
+                    // Optional: You might want to iterate through activeMarkers and check if any correspond
+                    // to a removed key without proper data, although less likely with onDisconnect.
+                }
+            }, (error) => { // Add error handling for the listener itself
+                console.error("Firebase 'child_removed' listener error:", error);
+            });
+        }
             
               // ----------------------------------
               // 1) SCENE + CAMERA + RENDERER
@@ -1079,6 +1444,8 @@
         
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
+            // Start tracking the visitor's location FIRST
+            trackVisitorLocation();
             const globe = new CyberGlobe();
 
             // Animate statistics

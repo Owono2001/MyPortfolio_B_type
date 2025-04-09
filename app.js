@@ -833,612 +833,611 @@
             constructor(containerId = 'globeCanvas') {
                 this.container = document.getElementById(containerId);
                 if (!this.container) {
-                  console.error('Globe container not found!');
-                  return;
+                    console.error('Globe container not found!');
+                    return; // Stop if container doesn't exist
                 }
-            
-                // === CONFIG ===
-                
-                this.autoRotateSpeed = 0.0005;      // How fast the Earth spins on its own
-                this.connectionCount = 400;         // # of small "network" points on Earth
-                this.arcCount = 10;                // # of arcs that animate in/out
-                this.isUserInteracting = false;     // We'll keep it false (no orbiting)
+        
+                // --- Original Config & Properties ---
+                this.autoRotateSpeed = 0.0005;
+                this.connectionCount = 400; // Note: These are just numbers for visual effect setup
+                this.arcCount = 10;         // Note: These are just numbers for visual effect setup
+                this.isUserInteracting = false; // Assuming no orbit controls needed based on previous code
+                this.scene = null;
+                this.camera = null;
+                this.renderer = null;
+                this.earth = null;
+                this.atmosphere = null;
+                this.starField = null;
+                this.connectionPoints = [];
+                this.arcs = [];
+                this.raycaster = null;
+                this.mouse = null;
+                this.tooltip = null; // Assuming you had a tooltip property before for hover
+        
+                // --- Properties for Visitor Geolocation Feature ---
                 this.activeVisitorMarkers = {}; // Stores marker objects { 'US': marker1, 'MY': marker2 }
                 this.activeCountries = {};     // Stores counts of visitors per country { 'US': 2, 'MY': 1 }
-                this.countryCoords = this.getCountryCoordinates(); // Coordinates lookup object - WILL BE ADDED LATER
+                this.countryCoords = this.getCountryCoordinates(); // Coordinates lookup object
                 this.markerMaterial = new THREE.MeshBasicMaterial({
                     color: 0xff00ff, // Marker color (magenta)
                     transparent: true,
                     opacity: 0.9,
                     depthTest: false, // Try rendering markers on top
-                    side: THREE.DoubleSide // Make sure material is visible from inside/outside
+                    side: THREE.DoubleSide // Make sure material is visible
                 });
-               this.markerGeometry = new THREE.SphereGeometry(0.05, 16, 16); // Small sphere geometry
-               // === END OF NEW PROPERTIES ===
+                this.markerGeometry = new THREE.SphereGeometry(0.05, 16, 16); // Small sphere geometry
+                this.animatedStats = { countries: 0 }; // Object to hold the value we animate for the live count
+        
+                // --- Initialize the Globe ---
+                // Call original setup methods (ensure these exist below)
                 this.initScene();
                 this.addLights();
                 this.createStarField();
-                this.createEarth();
+                this.createEarth(); // Important: Earth must be created before adding markers
                 this.createAtmosphere();
-                this.createConnections();
-                this.createArcs();
-                this.addInteractivity();
+                this.createConnections(); // Your original connection points
+                this.createArcs(); // Your original arcs
+                this.addInteractivity(); // Your original interactivity setup
                 this.setupResizeHandler();
-                this.animate();
-
-                // === ADD THIS BLOCK BELOW to start listening for Firebase data ===
-                if (database) { // Check if Firebase initialized properly
+                this.animate(); // Start the animation loop
+        
+                // --- Start Listening for Firebase Visitors ---
+                // This needs to happen AFTER the core scene (especially this.earth) is set up
+                if (typeof database !== 'undefined' && database) { // Check if Firebase 'database' variable exists and is initialized
                     this.listenForVisitors();
-                    console.log("CyberGlobe is now listening for visitors.");
+                    console.log("CyberGlobe constructor finished, attempting to listen for visitors.");
                 } else {
-                    console.warn("Firebase not available, globe visitor markers disabled.");
+                    console.warn("Firebase 'database' not available when CyberGlobe constructed. Visitor feature disabled.");
                 }
-                // === END OF BLOCK TO ADD ===
-                // Add weather visualization
-                this.weatherOverlay = null;
-                this.isWeatherVisible = false;
-
-
-              }
-        // === NEW Function to Map Country Codes to Lat/Lon ===
-        // (This is the large, expanded version)
-        getCountryCoordinates() {
-            // Data source: Combined/approximated from various public datasets
-            // Format: 'COUNTRY_CODE': { lat: Latitude, lon: Longitude }
-            return {
-                'AF': { lat: 33.9391, lon: 67.7100 }, 'AL': { lat: 41.1533, lon: 20.1683 },
-                'DZ': { lat: 28.0339, lon: 1.6596 },  'AD': { lat: 42.5462, lon: 1.6016 },
-                'AO': { lat: -11.2027, lon: 17.8739 },'AR': { lat: -38.4161, lon: -63.6167 },
-                'AM': { lat: 40.0691, lon: 45.0382 }, 'AU': { lat: -25.2744, lon: 133.7751 },
-                'AT': { lat: 47.5162, lon: 14.5501 }, 'AZ': { lat: 40.1431, lon: 47.5769 },
-                'BH': { lat: 25.9304, lon: 50.6378 }, 'BD': { lat: 23.6850, lon: 90.3563 },
-                'BY': { lat: 53.7098, lon: 27.9534 }, 'BE': { lat: 50.5039, lon: 4.4699 },
-                'BZ': { lat: 17.1899, lon: -88.4976 },'BJ': { lat: 9.3077, lon: 2.3158 },
-                'BT': { lat: 27.5142, lon: 90.4336 }, 'BO': { lat: -16.2902, lon: -63.5887 },
-                'BA': { lat: 43.9159, lon: 17.6791 }, 'BW': { lat: -22.3285, lon: 24.6849 },
-                'BR': { lat: -14.2350, lon: -51.9253 },'BN': { lat: 4.5353, lon: 114.7277 },
-                'BG': { lat: 42.7339, lon: 25.4858 }, 'BF': { lat: 12.2383, lon: -1.5616 },
-                'BI': { lat: -3.3731, lon: 29.9189 }, 'KH': { lat: 12.5657, lon: 104.9910 },
-                'CM': { lat: 7.3697, lon: 12.3547 },  'CA': { lat: 56.1304, lon: -106.3468 },
-                'CV': { lat: 16.0021, lon: -24.0132 },'CF': { lat: 6.6111, lon: 20.9394 },
-                'TD': { lat: 15.4542, lon: 18.7322 }, 'CL': { lat: -35.6751, lon: -71.5430 },
-                'CN': { lat: 35.8617, lon: 104.1954 },'CO': { lat: 4.5709, lon: -74.2973 },
-                'KM': { lat: -11.8750, lon: 43.8722 },'CG': { lat: -0.2280, lon: 15.8277 },
-                'CD': { lat: -4.0383, lon: 21.7587 }, 'CR': { lat: 9.7489, lon: -83.7534 },
-                'CI': { lat: 7.5400, lon: -5.5471 },  'HR': { lat: 45.1000, lon: 15.2000 },
-                'CU': { lat: 21.5218, lon: -77.7812 },'CY': { lat: 35.1264, lon: 33.4299 },
-                'CZ': { lat: 49.8175, lon: 15.4730 }, 'DK': { lat: 56.2639, lon: 9.5018 },
-                'DJ': { lat: 11.8251, lon: 42.5903 }, 'DO': { lat: 18.7357, lon: -70.1627 },
-                'EC': { lat: -1.8312, lon: -78.1834 },'EG': { lat: 26.8206, lon: 30.8025 },
-                'SV': { lat: 13.7942, lon: -88.8965 },'GQ': { lat: 1.6508, lon: 10.2679 },
-                'ER': { lat: 15.1794, lon: 39.7823 }, 'EE': { lat: 58.5953, lon: 25.0136 },
-                'SZ': { lat: -26.5225, lon: 31.4659 },'ET': { lat: 9.1450, lon: 40.4897 },
-                'FJ': { lat: -17.7134, lon: 178.0650 },'FI': { lat: 61.9241, lon: 25.7482 },
-                'FR': { lat: 46.2276, lon: 2.2137 },  'GA': { lat: -0.8037, lon: 11.6094 },
-                'GM': { lat: 13.4432, lon: -15.3101 },'GE': { lat: 42.3154, lon: 43.3569 },
-                'DE': { lat: 51.1657, lon: 10.4515 }, 'GH': { lat: 7.9465, lon: -1.0232 },
-                'GR': { lat: 39.0742, lon: 21.8243 }, 'GD': { lat: 12.1165, lon: -61.6790 },
-                'GT': { lat: 15.7835, lon: -90.2308 },'GN': { lat: 9.9456, lon: -9.6966 },
-                'GW': { lat: 11.8037, lon: -15.1804 },'GY': { lat: 4.8604, lon: -58.9302 },
-                'HT': { lat: 18.9712, lon: -72.2852 },'HN': { lat: 15.1999, lon: -86.2419 },
-                'HU': { lat: 47.1625, lon: 19.5033 }, 'IS': { lat: 64.9631, lon: -19.0208 },
-                'IN': { lat: 20.5937, lon: 78.9629 }, 'ID': { lat: -0.7893, lon: 113.9213 },
-                'IR': { lat: 32.4279, lon: 53.6880 }, 'IQ': { lat: 33.2232, lon: 43.6793 },
-                'IE': { lat: 53.4129, lon: -8.2439 }, 'IL': { lat: 31.0461, lon: 34.8516 },
-                'IT': { lat: 41.8719, lon: 12.5674 }, 'JM': { lat: 18.1096, lon: -77.2975 },
-                'JP': { lat: 36.2048, lon: 138.2529 },'JO': { lat: 30.5852, lon: 36.2384 },
-                'KZ': { lat: 48.0196, lon: 66.9237 }, 'KE': { lat: -0.0236, lon: 37.9062 },
-                'KI': { lat: -3.3704, lon: -168.7340 },'KP': { lat: 40.3399, lon: 127.5101 },
-                'KR': { lat: 35.9078, lon: 127.7669 },'KW': { lat: 29.3117, lon: 47.4818 },
-                'KG': { lat: 41.2044, lon: 74.7661 }, 'LA': { lat: 19.8563, lon: 102.4955 },
-                'LV': { lat: 56.8796, lon: 24.6032 }, 'LB': { lat: 33.8547, lon: 35.8623 },
-                'LS': { lat: -29.6100, lon: 28.2336 },'LR': { lat: 6.4281, lon: -9.4295 },
-                'LY': { lat: 26.3351, lon: 17.2283 }, 'LI': { lat: 47.1660, lon: 9.5554 },
-                'LT': { lat: 55.1694, lon: 23.8813 }, 'LU': { lat: 49.8153, lon: 6.1296 },
-                'MG': { lat: -18.7669, lon: 46.8691 },'MW': { lat: -13.2543, lon: 34.3015 },
-                'MY': { lat: 4.2105, lon: 101.9758 }, 'MV': { lat: 3.2028, lon: 73.2207 },
-                'ML': { lat: 17.5707, lon: -3.9962 }, 'MT': { lat: 35.9375, lon: 14.3754 },
-                'MH': { lat: 7.1315, lon: 171.1845 }, 'MR': { lat: 21.0079, lon: -10.9408 },
-                'MU': { lat: -20.3484, lon: 57.5522 },'MX': { lat: 23.6345, lon: -102.5528 },
-                'FM': { lat: 7.4256, lon: 150.5508 }, 'MD': { lat: 47.4116, lon: 28.3699 },
-                'MC': { lat: 43.7384, lon: 7.4246 },  'MN': { lat: 46.8625, lon: 103.8467 },
-                'ME': { lat: 42.7087, lon: 19.3744 }, 'MA': { lat: 31.7917, lon: -7.0926 },
-                'MZ': { lat: -18.6657, lon: 35.5296 },'MM': { lat: 21.9162, lon: 95.9560 },
-                'NA': { lat: -22.9576, lon: 18.4904 },'NR': { lat: -0.5228, lon: 166.9315 },
-                'NP': { lat: 28.3949, lon: 84.1240 }, 'NL': { lat: 52.1326, lon: 5.2913 },
-                'NZ': { lat: -40.9006, lon: 174.8860 },'NI': { lat: 12.8654, lon: -85.2072 },
-                'NE': { lat: 17.6078, lon: 8.0817 },  'NG': { lat: 9.0820, lon: 8.6753 },
-                'MK': { lat: 41.6086, lon: 21.7453 }, 'NO': { lat: 60.4720, lon: 8.4689 },
-                'OM': { lat: 21.5126, lon: 55.9233 }, 'PK': { lat: 30.3753, lon: 69.3451 },
-                'PW': { lat: 7.5150, lon: 134.5825 }, 'PA': { lat: 8.5380, lon: -80.7821 },
-                'PG': { lat: -6.3150, lon: 143.9555 },'PY': { lat: -23.4425, lon: -58.4438 },
-                'PE': { lat: -9.1900, lon: -75.0152 },'PH': { lat: 12.8797, lon: 121.7740 },
-                'PL': { lat: 51.9194, lon: 19.1451 }, 'PT': { lat: 39.3999, lon: -8.2245 },
-                'QA': { lat: 25.3548, lon: 51.1839 }, 'RO': { lat: 45.9432, lon: 24.9668 },
-                'RU': { lat: 61.5240, lon: 105.3188 },'RW': { lat: -1.9403, lon: 29.8739 },
-                'WS': { lat: -13.7590, lon: -172.1046 },'SM': { lat: 43.9424, lon: 12.4578 },
-                'ST': { lat: 0.1864, lon: 6.6131 },   'SA': { lat: 23.8859, lon: 45.0792 },
-                'SN': { lat: 14.4974, lon: -14.4524 },'RS': { lat: 44.0165, lon: 21.0059 },
-                'SC': { lat: -4.6796, lon: 55.4920 }, 'SL': { lat: 8.4606, lon: -11.7799 },
-                'SG': { lat: 1.3521, lon: 103.8198 },'SK': { lat: 48.6690, lon: 19.6990 },
-                'SI': { lat: 46.1512, lon: 14.9955 }, 'SB': { lat: -9.6457, lon: 160.1562 },
-                'SO': { lat: 5.1521, lon: 46.1996 },  'ZA': { lat: -30.5595, lon: 22.9375 },
-                'SS': { lat: 6.8770, lon: 31.3070 },  'ES': { lat: 40.4637, lon: -3.7492 },
-                'LK': { lat: 7.8731, lon: 80.7718 },  'SD': { lat: 12.8628, lon: 30.2176 },
-                'SR': { lat: 3.9193, lon: -56.0278 }, 'SE': { lat: 60.1282, lon: 18.6435 },
-                'CH': { lat: 46.8182, lon: 8.2275 },  'SY': { lat: 34.8021, lon: 38.9968 },
-                'TW': { lat: 23.6978, lon: 120.9605 },'TJ': { lat: 38.8610, lon: 71.2761 },
-                'TZ': { lat: -6.3690, lon: 34.8888 }, 'TH': { lat: 15.8700, lon: 100.9925 },
-                'TL': { lat: -8.8742, lon: 125.7275 },'TG': { lat: 8.6195, lon: 0.8248 },
-                'TO': { lat: -21.1790, lon: -175.1982 },'TT': { lat: 10.6918, lon: -61.2225 },
-                'TN': { lat: 33.8869, lon: 9.5375 },  'TR': { lat: 38.9637, lon: 35.2433 },
-                'TM': { lat: 38.9697, lon: 59.5563 }, 'TV': { lat: -7.1095, lon: 177.6493 },
-                'UG': { lat: 1.3733, lon: 32.2903 },  'UA': { lat: 48.3794, lon: 31.1656 },
-                'AE': { lat: 23.4241, lon: 53.8478 }, 'GB': { lat: 55.3781, lon: -3.4360 },
-                'US': { lat: 38.9637, lon: -95.7129 },'UY': { lat: -32.5228, lon: -55.7658 },
-                'UZ': { lat: 41.3775, lon: 64.5853 }, 'VU': { lat: -15.3767, lon: 166.9592 },
-                'VE': { lat: 6.4238, lon: -66.5897 }, 'VN': { lat: 14.0583, lon: 108.2772 },
-                'YE': { lat: 15.5527, lon: 48.5164 }, 'ZM': { lat: -13.1339, lon: 27.8493 },
-                'ZW': { lat: -19.0154, lon: 29.1549 },
-                // Special Codes
-                'Unknown': null, 'Error': null
-            };
-        }
-
-        // === NEW Function to Convert Lat/Lon to 3D point ===
-        latLonToVector3(lat, lon, radius) {
-            // Ensure inputs are numbers
-            const latRad = THREE.MathUtils.degToRad(lat);
-            const lonRad = THREE.MathUtils.degToRad(lon);
-
-            // Calculate coordinates using the standard formula
-            // Note: Three.js uses Y-up coordinate system by default.
-            // Adjusting calculation for Three.js sphere geometry where:
-            // X = radius * sin(phi) * sin(theta)
-            // Y = radius * cos(phi)
-            // Z = radius * sin(phi) * cos(theta)
-            // where phi is polar angle (from +Y axis), theta is azimuthal angle (around Y axis)
-
-            const phi = Math.PI / 2 - latRad; // Angle from the +Y axis
-            const theta = lonRad; // Angle around the Y axis
-
-            const x = radius * Math.sin(phi) * Math.cos(theta);
-            const y = radius * Math.cos(phi);
-            const z = radius * Math.sin(phi) * Math.sin(theta);
-
-            return new THREE.Vector3(x, y, z);
-        }
-
-        // === NEW Function to Add/Update a marker ===
-        updateVisitorMarker(countryCode) {
-            // Ensure countryCode is valid and we have coordinates
-            if (!countryCode || !this.countryCoords[countryCode]) {
-                console.warn(`Skipping marker creation for invalid or unknown country code: ${countryCode}`);
-                return;
+        
+                // Add weather visualization properties if you still need them
+                 this.weatherOverlay = null;
+                 this.isWeatherVisible = false;
+        
+            } // <<< --- End of Constructor ---
+        
+        
+            // ===========================================
+            // === Geolocation Feature Methods         ===
+            // ===========================================
+        
+            // --- Method to get Coordinates Map (Expanded) ---
+            getCountryCoordinates() {
+                // Data source: Combined/approximated from various public datasets
+                // Format: 'COUNTRY_CODE': { lat: Latitude, lon: Longitude }
+                return {
+                    'AF': { lat: 33.9391, lon: 67.7100 }, 'AL': { lat: 41.1533, lon: 20.1683 },
+                    'DZ': { lat: 28.0339, lon: 1.6596 },  'AD': { lat: 42.5462, lon: 1.6016 },
+                    'AO': { lat: -11.2027, lon: 17.8739 },'AR': { lat: -38.4161, lon: -63.6167 },
+                    'AM': { lat: 40.0691, lon: 45.0382 }, 'AU': { lat: -25.2744, lon: 133.7751 },
+                    'AT': { lat: 47.5162, lon: 14.5501 }, 'AZ': { lat: 40.1431, lon: 47.5769 },
+                    'BH': { lat: 25.9304, lon: 50.6378 }, 'BD': { lat: 23.6850, lon: 90.3563 },
+                    'BY': { lat: 53.7098, lon: 27.9534 }, 'BE': { lat: 50.5039, lon: 4.4699 },
+                    'BZ': { lat: 17.1899, lon: -88.4976 },'BJ': { lat: 9.3077, lon: 2.3158 },
+                    'BT': { lat: 27.5142, lon: 90.4336 }, 'BO': { lat: -16.2902, lon: -63.5887 },
+                    'BA': { lat: 43.9159, lon: 17.6791 }, 'BW': { lat: -22.3285, lon: 24.6849 },
+                    'BR': { lat: -14.2350, lon: -51.9253 },'BN': { lat: 4.5353, lon: 114.7277 },
+                    'BG': { lat: 42.7339, lon: 25.4858 }, 'BF': { lat: 12.2383, lon: -1.5616 },
+                    'BI': { lat: -3.3731, lon: 29.9189 }, 'KH': { lat: 12.5657, lon: 104.9910 },
+                    'CM': { lat: 7.3697, lon: 12.3547 },  'CA': { lat: 56.1304, lon: -106.3468 },
+                    'CV': { lat: 16.0021, lon: -24.0132 },'CF': { lat: 6.6111, lon: 20.9394 },
+                    'TD': { lat: 15.4542, lon: 18.7322 }, 'CL': { lat: -35.6751, lon: -71.5430 },
+                    'CN': { lat: 35.8617, lon: 104.1954 },'CO': { lat: 4.5709, lon: -74.2973 },
+                    'KM': { lat: -11.8750, lon: 43.8722 },'CG': { lat: -0.2280, lon: 15.8277 },
+                    'CD': { lat: -4.0383, lon: 21.7587 }, 'CR': { lat: 9.7489, lon: -83.7534 },
+                    'CI': { lat: 7.5400, lon: -5.5471 },  'HR': { lat: 45.1000, lon: 15.2000 },
+                    'CU': { lat: 21.5218, lon: -77.7812 },'CY': { lat: 35.1264, lon: 33.4299 },
+                    'CZ': { lat: 49.8175, lon: 15.4730 }, 'DK': { lat: 56.2639, lon: 9.5018 },
+                    'DJ': { lat: 11.8251, lon: 42.5903 }, 'DO': { lat: 18.7357, lon: -70.1627 },
+                    'EC': { lat: -1.8312, lon: -78.1834 },'EG': { lat: 26.8206, lon: 30.8025 },
+                    'SV': { lat: 13.7942, lon: -88.8965 },'GQ': { lat: 1.6508, lon: 10.2679 },
+                    'ER': { lat: 15.1794, lon: 39.7823 }, 'EE': { lat: 58.5953, lon: 25.0136 },
+                    'SZ': { lat: -26.5225, lon: 31.4659 },'ET': { lat: 9.1450, lon: 40.4897 },
+                    'FJ': { lat: -17.7134, lon: 178.0650 },'FI': { lat: 61.9241, lon: 25.7482 },
+                    'FR': { lat: 46.2276, lon: 2.2137 },  'GA': { lat: -0.8037, lon: 11.6094 },
+                    'GM': { lat: 13.4432, lon: -15.3101 },'GE': { lat: 42.3154, lon: 43.3569 },
+                    'DE': { lat: 51.1657, lon: 10.4515 }, 'GH': { lat: 7.9465, lon: -1.0232 },
+                    'GR': { lat: 39.0742, lon: 21.8243 }, 'GD': { lat: 12.1165, lon: -61.6790 },
+                    'GT': { lat: 15.7835, lon: -90.2308 },'GN': { lat: 9.9456, lon: -9.6966 },
+                    'GW': { lat: 11.8037, lon: -15.1804 },'GY': { lat: 4.8604, lon: -58.9302 },
+                    'HT': { lat: 18.9712, lon: -72.2852 },'HN': { lat: 15.1999, lon: -86.2419 },
+                    'HU': { lat: 47.1625, lon: 19.5033 }, 'IS': { lat: 64.9631, lon: -19.0208 },
+                    'IN': { lat: 20.5937, lon: 78.9629 }, 'ID': { lat: -0.7893, lon: 113.9213 },
+                    'IR': { lat: 32.4279, lon: 53.6880 }, 'IQ': { lat: 33.2232, lon: 43.6793 },
+                    'IE': { lat: 53.4129, lon: -8.2439 }, 'IL': { lat: 31.0461, lon: 34.8516 },
+                    'IT': { lat: 41.8719, lon: 12.5674 }, 'JM': { lat: 18.1096, lon: -77.2975 },
+                    'JP': { lat: 36.2048, lon: 138.2529 },'JO': { lat: 30.5852, lon: 36.2384 },
+                    'KZ': { lat: 48.0196, lon: 66.9237 }, 'KE': { lat: -0.0236, lon: 37.9062 },
+                    'KI': { lat: -3.3704, lon: -168.7340 },'KP': { lat: 40.3399, lon: 127.5101 },
+                    'KR': { lat: 35.9078, lon: 127.7669 },'KW': { lat: 29.3117, lon: 47.4818 },
+                    'KG': { lat: 41.2044, lon: 74.7661 }, 'LA': { lat: 19.8563, lon: 102.4955 },
+                    'LV': { lat: 56.8796, lon: 24.6032 }, 'LB': { lat: 33.8547, lon: 35.8623 },
+                    'LS': { lat: -29.6100, lon: 28.2336 },'LR': { lat: 6.4281, lon: -9.4295 },
+                    'LY': { lat: 26.3351, lon: 17.2283 }, 'LI': { lat: 47.1660, lon: 9.5554 },
+                    'LT': { lat: 55.1694, lon: 23.8813 }, 'LU': { lat: 49.8153, lon: 6.1296 },
+                    'MG': { lat: -18.7669, lon: 46.8691 },'MW': { lat: -13.2543, lon: 34.3015 },
+                    'MY': { lat: 4.2105, lon: 101.9758 }, 'MV': { lat: 3.2028, lon: 73.2207 },
+                    'ML': { lat: 17.5707, lon: -3.9962 }, 'MT': { lat: 35.9375, lon: 14.3754 },
+                    'MH': { lat: 7.1315, lon: 171.1845 }, 'MR': { lat: 21.0079, lon: -10.9408 },
+                    'MU': { lat: -20.3484, lon: 57.5522 },'MX': { lat: 23.6345, lon: -102.5528 },
+                    'FM': { lat: 7.4256, lon: 150.5508 }, 'MD': { lat: 47.4116, lon: 28.3699 },
+                    'MC': { lat: 43.7384, lon: 7.4246 },  'MN': { lat: 46.8625, lon: 103.8467 },
+                    'ME': { lat: 42.7087, lon: 19.3744 }, 'MA': { lat: 31.7917, lon: -7.0926 },
+                    'MZ': { lat: -18.6657, lon: 35.5296 },'MM': { lat: 21.9162, lon: 95.9560 },
+                    'NA': { lat: -22.9576, lon: 18.4904 },'NR': { lat: -0.5228, lon: 166.9315 },
+                    'NP': { lat: 28.3949, lon: 84.1240 }, 'NL': { lat: 52.1326, lon: 5.2913 },
+                    'NZ': { lat: -40.9006, lon: 174.8860 },'NI': { lat: 12.8654, lon: -85.2072 },
+                    'NE': { lat: 17.6078, lon: 8.0817 },  'NG': { lat: 9.0820, lon: 8.6753 },
+                    'MK': { lat: 41.6086, lon: 21.7453 }, 'NO': { lat: 60.4720, lon: 8.4689 },
+                    'OM': { lat: 21.5126, lon: 55.9233 }, 'PK': { lat: 30.3753, lon: 69.3451 },
+                    'PW': { lat: 7.5150, lon: 134.5825 }, 'PA': { lat: 8.5380, lon: -80.7821 },
+                    'PG': { lat: -6.3150, lon: 143.9555 },'PY': { lat: -23.4425, lon: -58.4438 },
+                    'PE': { lat: -9.1900, lon: -75.0152 },'PH': { lat: 12.8797, lon: 121.7740 },
+                    'PL': { lat: 51.9194, lon: 19.1451 }, 'PT': { lat: 39.3999, lon: -8.2245 },
+                    'QA': { lat: 25.3548, lon: 51.1839 }, 'RO': { lat: 45.9432, lon: 24.9668 },
+                    'RU': { lat: 61.5240, lon: 105.3188 },'RW': { lat: -1.9403, lon: 29.8739 },
+                    'WS': { lat: -13.7590, lon: -172.1046 },'SM': { lat: 43.9424, lon: 12.4578 },
+                    'ST': { lat: 0.1864, lon: 6.6131 },   'SA': { lat: 23.8859, lon: 45.0792 },
+                    'SN': { lat: 14.4974, lon: -14.4524 },'RS': { lat: 44.0165, lon: 21.0059 },
+                    'SC': { lat: -4.6796, lon: 55.4920 }, 'SL': { lat: 8.4606, lon: -11.7799 },
+                    'SG': { lat: 1.3521, lon: 103.8198 },'SK': { lat: 48.6690, lon: 19.6990 },
+                    'SI': { lat: 46.1512, lon: 14.9955 }, 'SB': { lat: -9.6457, lon: 160.1562 },
+                    'SO': { lat: 5.1521, lon: 46.1996 },  'ZA': { lat: -30.5595, lon: 22.9375 },
+                    'SS': { lat: 6.8770, lon: 31.3070 },  'ES': { lat: 40.4637, lon: -3.7492 },
+                    'LK': { lat: 7.8731, lon: 80.7718 },  'SD': { lat: 12.8628, lon: 30.2176 },
+                    'SR': { lat: 3.9193, lon: -56.0278 }, 'SE': { lat: 60.1282, lon: 18.6435 },
+                    'CH': { lat: 46.8182, lon: 8.2275 },  'SY': { lat: 34.8021, lon: 38.9968 },
+                    'TW': { lat: 23.6978, lon: 120.9605 },'TJ': { lat: 38.8610, lon: 71.2761 },
+                    'TZ': { lat: -6.3690, lon: 34.8888 }, 'TH': { lat: 15.8700, lon: 100.9925 },
+                    'TL': { lat: -8.8742, lon: 125.7275 },'TG': { lat: 8.6195, lon: 0.8248 },
+                    'TO': { lat: -21.1790, lon: -175.1982 },'TT': { lat: 10.6918, lon: -61.2225 },
+                    'TN': { lat: 33.8869, lon: 9.5375 },  'TR': { lat: 38.9637, lon: 35.2433 },
+                    'TM': { lat: 38.9697, lon: 59.5563 }, 'TV': { lat: -7.1095, lon: 177.6493 },
+                    'UG': { lat: 1.3733, lon: 32.2903 },  'UA': { lat: 48.3794, lon: 31.1656 },
+                    'AE': { lat: 23.4241, lon: 53.8478 }, 'GB': { lat: 55.3781, lon: -3.4360 },
+                    'US': { lat: 38.9637, lon: -95.7129 },'UY': { lat: -32.5228, lon: -55.7658 },
+                    'UZ': { lat: 41.3775, lon: 64.5853 }, 'VU': { lat: -15.3767, lon: 166.9592 },
+                    'VE': { lat: 6.4238, lon: -66.5897 }, 'VN': { lat: 14.0583, lon: 108.2772 },
+                    'YE': { lat: 15.5527, lon: 48.5164 }, 'ZM': { lat: -13.1339, lon: 27.8493 },
+                    'ZW': { lat: -19.0154, lon: 29.1549 },
+                    // Special Codes
+                    'Unknown': null, 'Error': null
+                };
             }
-            // Skip if marker already exists (it means count > 1, handled by listenForVisitors logic)
-            if (this.activeVisitorMarkers[countryCode]) {
-                return;
+        
+            // --- Method to Convert Lat/Lon to 3D point ---
+            latLonToVector3(lat, lon, radius) {
+                const latRad = THREE.MathUtils.degToRad(lat);
+                const lonRad = THREE.MathUtils.degToRad(lon);
+                const phi = Math.PI / 2 - latRad;
+                const theta = lonRad;
+                const x = radius * Math.sin(phi) * Math.cos(theta);
+                const y = radius * Math.cos(phi);
+                const z = radius * Math.sin(phi) * Math.sin(theta);
+                return new THREE.Vector3(x, y, z);
             }
-
-            const coords = this.countryCoords[countryCode];
-            // Place slightly above the Earth's surface (adjust 3.55 based on your earth radius + desired height)
-            const markerPosition = this.latLonToVector3(coords.lat, coords.lon, 3.55);
-
-            // Create the marker mesh
-            const marker = new THREE.Mesh(this.markerGeometry, this.markerMaterial);
-            marker.position.copy(markerPosition);
-            marker.name = `marker_${countryCode}`; // Assign name for potential raycasting later
-            marker.lookAt(0, 0, 0); // Point the marker towards the center (optional)
-
-            // Add the marker as a child of the Earth mesh so it rotates along with it
-            if (this.earth) { // Ensure earth exists before adding
-                this.earth.add(marker);
-                this.activeVisitorMarkers[countryCode] = marker; // Store reference
-                console.log(`Added marker for ${countryCode}`);
-
-                // Simple appear animation using GSAP
-                marker.scale.set(0.1, 0.1, 0.1); // Start small
-                gsap.to(marker.scale, { x: 1, y: 1, z: 1, duration: 0.5, ease: "back.out(1.7)" });
-            } else {
-                console.error("Cannot add marker: Earth object not found.");
+        
+            // --- Method to Add/Update a marker ---
+            updateVisitorMarker(countryCode) {
+                if (!countryCode || !this.countryCoords[countryCode]) {
+                    // console.warn(`Skipping marker creation for invalid code: ${countryCode}`);
+                    return;
+                }
+                if (this.activeVisitorMarkers[countryCode]) { return; } // Already exists
+        
+                const coords = this.countryCoords[countryCode];
+                const markerPosition = this.latLonToVector3(coords.lat, coords.lon, 3.55); // Adjust radius as needed
+                const marker = new THREE.Mesh(this.markerGeometry, this.markerMaterial);
+                marker.position.copy(markerPosition);
+                marker.name = `marker_${countryCode}`;
+                marker.lookAt(0, 0, 0);
+        
+                if (this.earth) {
+                    this.earth.add(marker);
+                    this.activeVisitorMarkers[countryCode] = marker;
+                    // console.log(`Added marker for ${countryCode}`);
+                    marker.scale.set(0.1, 0.1, 0.1);
+                    gsap.to(marker.scale, { x: 1, y: 1, z: 1, duration: 0.5, ease: "back.out(1.7)" });
+                } else { console.error("Cannot add marker: Earth not found."); }
             }
-        }
-
-        // === NEW Function to Remove a marker ===
-        removeVisitorMarker(countryCode) {
-            const marker = this.activeVisitorMarkers[countryCode];
-            if (marker) {
-                // Simple disappear animation using GSAP
-                gsap.to(marker.scale, {
-                    x: 0.1, y: 0.1, z: 0.1, // Shrink down
-                    duration: 0.5,
-                    ease: "power1.in",
-                    onComplete: () => { // Remove the marker *after* the animation completes
-                        if (this.earth && marker.parent === this.earth) { // Check if still attached
-                            this.earth.remove(marker);
+        
+            // --- Method to Remove a marker ---
+            removeVisitorMarker(countryCode) {
+                const marker = this.activeVisitorMarkers[countryCode];
+                if (marker) {
+                    gsap.to(marker.scale, {
+                        x: 0.1, y: 0.1, z: 0.1, duration: 0.5, ease: "power1.in",
+                        onComplete: () => {
+                            if (this.earth && marker.parent === this.earth) { this.earth.remove(marker); }
                         }
-                        // Clean up Three.js resources if necessary (optional for simple geometry/material)
-                        // marker.geometry.dispose();
-                        // marker.material.dispose();
-                    }
-                });
-                delete this.activeVisitorMarkers[countryCode]; // Remove reference immediately
-                console.log(`Removed marker for ${countryCode}`);
-            } else {
-                console.warn(`Attempted to remove marker for ${countryCode}, but it was not found.`);
+                    });
+                    delete this.activeVisitorMarkers[countryCode];
+                    // console.log(`Removed marker for ${countryCode}`);
+                } else { /* console.warn(`Attempted to remove non-existent marker: ${countryCode}`); */ }
             }
-        }
-
-        // === PASTE THIS FUNCTION BELOW ===
-        listenForVisitors() {
-            if (!database) return; // Safety check
-
-            const visitorsRef = database.ref('active_visitors');
-
-            // When a visitor is added to Firebase
-            visitorsRef.on('child_added', (snapshot) => {
-                const visitorData = snapshot.val();
-                const visitorKey = snapshot.key; // Get the unique key (visitorId)
-
-                if (visitorData && visitorData.country) {
-                    const country = visitorData.country;
-                    // Increment count for this country
-                    this.activeCountries[country] = (this.activeCountries[country] || 0) + 1;
-                    console.log(`Visitor added from ${country}. Total for ${country}: ${this.activeCountries[country]}`);
-                    // Add a marker ONLY if it's the first visitor from this country
-                    if (this.activeCountries[country] === 1) {
-                        this.updateVisitorMarker(country); // Pass country code
-                    }
-                } else {
-                    console.warn(`Received invalid visitor data on add: ${visitorKey}`, visitorData);
+        
+            // --- Method to Update Live Stat ---
+             updateCountriesStat(newCount) {
+                const statElement = document.getElementById('countries-stat-value');
+                if (!statElement) { /* console.error("Stat element not found."); */ return; }
+                gsap.to(this.animatedStats, {
+                    countries: newCount, duration: 1.0, ease: 'power1.out',
+                    onUpdate: () => { statElement.innerText = Math.round(this.animatedStats.countries); }
+                });
+            }
+        
+            // --- Method to Listen to Firebase (Updated) ---
+            listenForVisitors() {
+                if (typeof database === 'undefined' || !database) {
+                     console.error("Firebase database reference not available in listenForVisitors.");
+                     return; // Safety check
                 }
-            }, (error) => { // Add error handling for the listener itself
-                console.error("Firebase 'child_added' listener error:", error);
-            });
-
-            // When a visitor is removed from Firebase (onDisconnect or cleanup)
-            visitorsRef.on('child_removed', (snapshot) => {
-                const visitorData = snapshot.val();
-                const visitorKey = snapshot.key;
-
-                // Check if data exists before trying to access properties
-                if (visitorData && visitorData.country) {
-                    const country = visitorData.country;
-                    // Decrement count, ensuring it doesn't go below zero
-                    this.activeCountries[country] = Math.max(0, (this.activeCountries[country] || 1) - 1);
-                    console.log(`Visitor removed from ${country}. Remaining for ${country}: ${this.activeCountries[country]}`);
-                    // Remove the marker ONLY if the count drops to zero
-                    if (this.activeCountries[country] === 0) {
-                        delete this.activeCountries[country]; // Clean up the count entry
-                        this.removeVisitorMarker(country); // Pass country code
+        
+                const visitorsRef = database.ref('active_visitors');
+                const countElement = document.getElementById('countries-stat-value');
+        
+                // Function to update count and UI based on current state
+                const updateUI = () => {
+                     const currentCountryCount = Object.keys(this.activeCountries).length;
+                     this.updateCountriesStat(currentCountryCount);
+                     // console.log(`UI Update: ${currentCountryCount} countries active.`);
+                };
+        
+                // When a visitor is added
+                visitorsRef.on('child_added', (snapshot) => {
+                    const visitorData = snapshot.val();
+                    if (visitorData && visitorData.country) {
+                        const country = visitorData.country;
+                        const isFirstVisit = !(country in this.activeCountries);
+                        this.activeCountries[country] = (this.activeCountries[country] || 0) + 1;
+                        if (isFirstVisit) { this.updateVisitorMarker(country); }
+                        updateUI(); // Update count display
                     }
-                } else {
-                    // Log if removed data is missing expected fields
-                    console.warn(`Received invalid visitor data on remove: ${visitorKey}`, visitorData);
-                    // Optional: You might want to iterate through activeMarkers and check if any correspond
-                    // to a removed key without proper data, although less likely with onDisconnect.
-                }
-            }, (error) => { // Add error handling for the listener itself
-                console.error("Firebase 'child_removed' listener error:", error);
-            });
-        }
-            
-              // ----------------------------------
-              // 1) SCENE + CAMERA + RENDERER
-              // ----------------------------------
-              initScene() {
-                // Get container's width/height
-                //const rect = this.container.getBoundingClientRect();
-            
-                // Create Scene
+                }, error => console.error("Firebase 'child_added' error:", error));
+        
+                // When a visitor is removed
+                visitorsRef.on('child_removed', (snapshot) => {
+                    const visitorData = snapshot.val();
+                    if (visitorData && visitorData.country) {
+                        const country = visitorData.country;
+                        if (country in this.activeCountries) {
+                            this.activeCountries[country] -= 1;
+                            if (this.activeCountries[country] <= 0) {
+                                delete this.activeCountries[country];
+                                this.removeVisitorMarker(country);
+                            }
+                            updateUI(); // Update count display
+                        }
+                    }
+                }, error => console.error("Firebase 'child_removed' error:", error));
+        
+                 // Initial fetch to set the count on load
+                 visitorsRef.once('value', (snapshot) => {
+                     const initialData = snapshot.val();
+                     const initialCountries = {}; // Use temp object for initial calculation
+                     if (initialData) {
+                         const uniqueCountries = new Set();
+                         for (const key in initialData) {
+                             if (initialData[key] && initialData[key].country) {
+                                 const countryCode = initialData[key].country;
+                                 uniqueCountries.add(countryCode);
+                                 initialCountries[countryCode] = (initialCountries[countryCode] || 0) + 1;
+                             }
+                         }
+                         const initialCount = uniqueCountries.size;
+                         // Sync internal state & UI
+                         this.activeCountries = initialCountries; // Set the initial country counts
+                         this.animatedStats.countries = initialCount;
+                         if (countElement) { countElement.innerText = initialCount; }
+                         console.log(`Initial active country count: ${initialCount}`);
+                         // Add markers for initially loaded countries
+                          uniqueCountries.forEach(countryCode => this.updateVisitorMarker(countryCode));
+        
+                     } else {
+                         if (countElement) { countElement.innerText = '0'; }
+                     }
+                 }, error => {
+                      console.error("Firebase initial 'once' error:", error);
+                      if (countElement) { countElement.innerText = '0'; }
+                 });
+            }
+        
+            // ===========================================
+            // === Original CyberGlobe Methods         ===
+            // ===========================================
+        
+            // --- SCENE + CAMERA + RENDERER ---
+            initScene() {
                 this.scene = new THREE.Scene();
-            
-                // Create Camera
-                this.camera = new THREE.PerspectiveCamera(
-                    45,
-                    window.innerWidth / window.innerHeight,
-                    0.1,
-                    1000
-                );
-                this.camera.position.set(0, 0, 12);
+                this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+                this.camera.position.set(0, 0, 12); // Adjust initial camera distance if needed
                 this.camera.lookAt(0, 0, 0);
-            
-                // Create Renderer
+        
                 this.renderer = new THREE.WebGLRenderer({
-                  canvas: this.container,
-                  antialias: true,
-                  alpha: true
+                    canvas: this.container,
+                    antialias: true,
+                    alpha: true // Keep transparent background
                 });
-                this.renderer.setPixelRatio(window.devicePixelRatio);
+                this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
                 this.renderer.setSize(window.innerWidth, window.innerHeight);
-              }
-            
-              // ----------------------------------
-              // 2) LIGHTING
-              // ----------------------------------
-              addLights() {
-                // Ambient light
-                const ambient = new THREE.AmbientLight(0xffffff, 0.4);
+            }
+        
+            // --- LIGHTING ---
+            addLights() {
+                const ambient = new THREE.AmbientLight(0xffffff, 0.5); // Slightly brighter ambient
                 this.scene.add(ambient);
-            
-                // Directional light
-                const dirLight = new THREE.DirectionalLight(0xffffff, 1);
-                dirLight.position.set(10, 10, 10);
+                const dirLight = new THREE.DirectionalLight(0xffffff, 0.8); // Slightly less intense directional
+                dirLight.position.set(5, 10, 7); // Adjust light position
                 this.scene.add(dirLight);
-              }
-            
-              // ----------------------------------
-              // 3) STAR FIELD (BACKGROUND STARS)
-              // ----------------------------------
-              createStarField() {
+            }
+        
+            // --- STARFIELD ---
+            createStarField() {
+                // (Assuming your original createStarField code is here)
+                // Example if missing:
                 const starGeometry = new THREE.BufferGeometry();
-                const starCount = 1200;
+                const starCount = 1500;
                 const positions = new Float32Array(starCount * 3);
-            
                 for (let i = 0; i < starCount; i++) {
-                  // Use spherical coordinates to spread them around
-                  const r = 300; 
-                  const theta = 2 * Math.PI * Math.random();
-                  const phi = Math.acos(2 * Math.random() - 1);
-            
-                  const x = r * Math.sin(phi) * Math.cos(theta);
-                  const y = r * Math.sin(phi) * Math.sin(theta);
-                  const z = r * Math.cos(phi);
-            
-                  positions[i * 3 + 0] = x;
-                  positions[i * 3 + 1] = y;
-                  positions[i * 3 + 2] = z;
+                    const r = 400 + Math.random() * 200; // Further out stars
+                    const theta = 2 * Math.PI * Math.random();
+                    const phi = Math.acos(2 * Math.random() - 1);
+                    positions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+                    positions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+                    positions[i * 3 + 2] = r * Math.cos(phi);
                 }
-                starGeometry.setAttribute(
-                  'position',
-                  new THREE.BufferAttribute(positions, 3)
-                );
-            
-                const starMaterial = new THREE.PointsMaterial({
-                  color: 0xffffff,
-                  size: 1,
-                  sizeAttenuation: true
-                });
-            
+                starGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+                const starMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 1.2, sizeAttenuation: true });
                 this.starField = new THREE.Points(starGeometry, starMaterial);
                 this.scene.add(this.starField);
-              }
-            
-              // ----------------------------------
-              // 4) EARTH
-              // ----------------------------------
-              createEarth() {
-                const geometry = new THREE.SphereGeometry(3.5, 64, 64);
+            }
+        
+            // --- EARTH ---
+            createEarth() {
+                // (Assuming your original createEarth code is here)
+                // Example if missing:
+                const geometry = new THREE.SphereGeometry(3.5, 64, 64); // Earth radius 3.5
                 const loader = new THREE.TextureLoader();
-                const earthTexture = loader.load('assets/textures/earth-texture.jpg');
-
+                const earthTexture = loader.load('assets/textures/earth-texture.jpg'); // Ensure path is correct
                 this.earthMaterial = new THREE.MeshPhongMaterial({
                     map: earthTexture,
-                    bumpScale: 0.1,
-                    specular: new THREE.Color(0x222222),
-                    emissive: 0x00f3ff,
-                    emissiveIntensity: 0.1,
-                    shininess: 10,
-                    transparent: true
+                    specular: new THREE.Color(0x111111),
+                    shininess: 5,
+                    transparent: false // Usually earth isn't transparent
                 });
-
                 this.earth = new THREE.Mesh(geometry, this.earthMaterial);
                 this.earth.name = 'earth';
                 this.scene.add(this.earth);
             }
-
-              // ----------------------------------
-              // 5) ATMOSPHERE
-              // ----------------------------------
-              createAtmosphere() {
-                const atmosphereGeo = new THREE.SphereGeometry(3.6, 64, 64);
-                const atmosphereMat = new THREE.MeshPhongMaterial({
-                  color: 0x00f3ff,
-                  transparent: true,
-                  opacity: 0.2,
-                  side: THREE.BackSide
-                });
-                this.atmosphere = new THREE.Mesh(atmosphereGeo, atmosphereMat);
-                this.atmosphere.name = 'atmosphere';
-                this.scene.add(this.atmosphere);
-            
-                // Subtle pulsing effect
-                gsap.to(this.atmosphere.material, {
-                  opacity: 0.3,
-                  duration: 2,
-                  repeat: -1,
-                  yoyo: true,
-                  ease: 'sine.inOut'
-                });
-              }
-            
-
-              
-              // ----------------------------------
-              // 6) CONNECTION POINTS
-              // ----------------------------------
-              createConnections() {
+        
+            // --- ATMOSPHERE ---
+            createAtmosphere() {
+                // (Assuming your original createAtmosphere code is here)
+                // Example if missing:
+                 const atmosphereGeo = new THREE.SphereGeometry(3.7, 64, 64); // Slightly larger than earth
+                 const atmosphereMat = new THREE.ShaderMaterial({
+                     vertexShader: `
+                         varying vec3 vNormal;
+                         void main() {
+                             vNormal = normalize( normalMatrix * normal );
+                             gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+                         }
+                     `,
+                     fragmentShader: `
+                         varying vec3 vNormal;
+                         void main() {
+                             float intensity = pow( 0.6 - dot( vNormal, vec3( 0.0, 0.0, 1.0 ) ), 2.0 ); // Rim lighting effect
+                             gl_FragColor = vec4( 0.0, 0.8, 1.0, 1.0 ) * intensity * 0.8; // Cyan-ish glow
+                         }
+                     `,
+                     side: THREE.BackSide,
+                     blending: THREE.AdditiveBlending,
+                     transparent: true
+                 });
+                 this.atmosphere = new THREE.Mesh(atmosphereGeo, atmosphereMat);
+                 this.atmosphere.name = 'atmosphere';
+                 this.scene.add(this.atmosphere);
+            }
+        
+            // --- CONNECTION POINTS ---
+            createConnections() {
+                // (Assuming your original createConnections code is here)
+                // Example if missing:
                 this.connectionPoints = [];
-                const geometry = new THREE.SphereGeometry(0.02, 8, 8);
-                const material = new THREE.MeshBasicMaterial({
-                  color: 0x00f3ff,
-                  transparent: true,
-                  opacity: 0.8
-                });
-            
+                const geometry = new THREE.SphereGeometry(0.015, 8, 8); // Smaller points
+                const material = new THREE.MeshBasicMaterial({ color: 0x00f3ff, transparent: true, opacity: 0.6 });
                 for (let i = 0; i < this.connectionCount; i++) {
-                  const phi = Math.acos(-1 + (2 * i) / this.connectionCount);
-                  const theta = Math.sqrt(this.connectionCount * Math.PI) * phi;
-            
-                  const point = new THREE.Mesh(geometry, material);
-                  point.position.set(
-                    3.6 * Math.cos(theta) * Math.sin(phi),
-                    3.6 * Math.sin(theta) * Math.sin(phi),
-                    3.6 * Math.cos(phi)
-                  );
-                  point.name = 'connectionPoint';
-                  this.connectionPoints.push(point);
-                  this.scene.add(point);
+                    const phi = Math.acos(-1 + (2 * i) / this.connectionCount);
+                    const theta = Math.sqrt(this.connectionCount * Math.PI) * phi;
+                    const point = new THREE.Mesh(geometry, material.clone()); // Clone material
+                    point.position.setFromSphericalCoords(3.51, phi, theta); // Place just above surface
+                    point.lookAt(0,0,0);
+                    point.name = 'connectionPoint';
+                    this.connectionPoints.push(point);
+                    if(this.earth) this.earth.add(point); // Add as child of earth
                 }
-              }
-            
-              // ----------------------------------
-              // 7) OPTIONAL ARCS
-              // ----------------------------------
-              createArcs() {
+            }
+        
+            // --- ARCS ---
+            createArcs() {
+                // (Assuming your original createArcs code is here)
+                // Example if missing:
                 this.arcs = [];
                 for (let i = 0; i < this.arcCount; i++) {
-                  const idxA = Math.floor(Math.random() * this.connectionPoints.length);
-                  const idxB = Math.floor(Math.random() * this.connectionPoints.length);
-                  if (idxA === idxB) continue;
-            
-                  const start = this.connectionPoints[idxA].position.clone();
-                  const end = this.connectionPoints[idxB].position.clone();
-            
-                  // Midpoint above Earth surface
-                  const mid = start.clone().lerp(end, 0.5);
-                  mid.normalize().multiplyScalar(4.0);
-            
-                  const curve = new THREE.QuadraticBezierCurve3(start, mid, end);
-                  const curvePoints = curve.getPoints(50);
-            
-                  const arcGeometry = new THREE.BufferGeometry().setFromPoints(curvePoints);
-                  const arcMaterial = new THREE.LineBasicMaterial({
-                    color: 0xff00ff,
-                    transparent: true,
-                    opacity: 0
-                  });
-            
-                  const arcLine = new THREE.Line(arcGeometry, arcMaterial);
-                  arcLine.name = 'arcLine';
-                  this.arcs.push(arcLine);
-                  this.scene.add(arcLine);
-            
-                  // Animate
-                  gsap.to(arcLine.material, {
-                    opacity: 1,
-                    duration: 1,
-                    delay: i * 0.2,
-                    repeat: -1,
-                    yoyo: true,
-                    ease: 'sine.inOut'
-                  });
+                     if (this.connectionPoints.length < 2) break; // Need points to make arcs
+                     const idxA = Math.floor(Math.random() * this.connectionPoints.length);
+                     let idxB = Math.floor(Math.random() * this.connectionPoints.length);
+                     while (idxB === idxA) { idxB = Math.floor(Math.random() * this.connectionPoints.length); }
+        
+                     const start = this.connectionPoints[idxA].position;
+                     const end = this.connectionPoints[idxB].position;
+                     const mid = start.clone().lerp(end, 0.5).normalize().multiplyScalar(3.8 + Math.random()*0.4); // Vary arc height
+        
+                     const curve = new THREE.QuadraticBezierCurve3(start, mid, end);
+                     const points = curve.getPoints(50);
+                     const arcGeometry = new THREE.BufferGeometry().setFromPoints(points);
+                     const arcMaterial = new THREE.LineBasicMaterial({ color: 0xff00ff, transparent: true, opacity: 0, depthTest: false });
+                     const arcLine = new THREE.Line(arcGeometry, arcMaterial);
+                     arcLine.name = 'arcLine';
+                     this.arcs.push(arcLine);
+                     if(this.earth) this.earth.add(arcLine); // Add as child of earth
+        
+                     // Animate arc opacity
+                     gsap.to(arcLine.material, {
+                         opacity: Math.random() * 0.4 + 0.2, // Random opacity
+                         duration: Math.random() * 1 + 0.5,
+                         delay: Math.random() * 3,
+                         repeat: -1, yoyo: true, ease: 'sine.inOut'
+                     });
                 }
-              }
-            
-              // ----------------------------------
-              // 8) INTERACTIVITY (Hover/Click)
-              // ----------------------------------
-              addInteractivity() {
+            }
+        
+            // --- INTERACTIVITY SETUP ---
+            addInteractivity() {
+                // (Assuming your original addInteractivity code is here)
+                // Example if missing:
                 this.raycaster = new THREE.Raycaster();
                 this.mouse = new THREE.Vector2();
-            
-                // Hover effect
-                document.addEventListener('mousemove', (e) => this.handleHover(e));
-            
-                // Click effect
-                document.addEventListener('click', (e) => this.handleClick(e));
-            
-                // Simple tooltip
                 this.tooltip = document.createElement('div');
-                this.tooltip.style.position = 'fixed';
-                this.tooltip.style.padding = '6px 10px';
-                this.tooltip.style.background = 'rgba(0,0,0,0.6)';
-                this.tooltip.style.color = '#00f3ff';
-                this.tooltip.style.font = '12px monospace';
-                this.tooltip.style.border = '1px solid #00f3ff';
-                this.tooltip.style.borderRadius = '4px';
-                this.tooltip.style.pointerEvents = 'none';
-                this.tooltip.style.opacity = '0';
+                this.tooltip.className = 'globe-tooltip'; // Use class for CSS styling
                 document.body.appendChild(this.tooltip);
-              }
-            
-              handleHover(e) {
-                 // NOTE: If you reference `intersects`, you need to define:
-                const intersects = this.raycaster.intersectObject(this.earth);
-
-                const { clientX, clientY } = e;
-                this.mouse.x = (clientX / window.innerWidth) * 2 - 1;
-                this.mouse.y = -((clientY / window.innerHeight) * 2 - 1);
-
-                if (intersects.length > 0) {
-                    const objName = intersects[0].object.name;
-                    if (objName === 'earth') {
-                        gsap.to(this.earthMaterial, { emissiveIntensity: 0.3, duration: 0.3 });
-                        this.tooltip.textContent = 'Earth';
-                        this.tooltip.style.opacity = '1';
-                    } else if (objName === 'connectionPoint') {
-                        this.tooltip.textContent = 'Network Node';
-                        this.tooltip.style.opacity = '1';
-                    }
-                    this.tooltip.style.left = clientX + 'px';
-                    this.tooltip.style.top = clientY + 'px';
-                } else {
-                    gsap.to(this.earthMaterial, { emissiveIntensity: 0.1, duration: 0.3 });
-                    this.tooltip.style.opacity = '0';
-                }
+        
+                window.addEventListener('mousemove', (e) => this.handleHover(e), false);
+                window.addEventListener('click', (e) => this.handleClick(e), false); // Keep click if needed
             }
-            
-              handleClick(e) {
+        
+            // --- HOVER HANDLING ---
+            handleHover(event) {
+                // (Assuming your original handleHover code is here, potentially updated for markers)
+                // Example if missing/needs update:
+                 if (!this.camera || !this.raycaster || !this.earth) return;
+        
+                 // Calculate mouse position in normalized device coordinates (-1 to +1)
+                 this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                 this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        
+                 this.raycaster.setFromCamera(this.mouse, this.camera);
+        
+                 // Check intersections with Earth and Markers
+                 const objectsToIntersect = [this.earth, ...Object.values(this.activeVisitorMarkers)];
+                 const intersects = this.raycaster.intersectObjects(objectsToIntersect);
+        
+                 let hoveredObject = null;
+                 if (intersects.length > 0) {
+                      hoveredObject = intersects[0].object;
+                 }
+        
+                 // Tooltip Logic
+                 if (hoveredObject) {
+                      let tooltipText = '';
+                      if (hoveredObject.name === 'earth') {
+                           tooltipText = 'Earth';
+                            // Optional: Highlight Earth slightly
+                           if (this.earthMaterial.emissive) gsap.to(this.earthMaterial.emissive, { r:0, g:0.05, b:0.1, duration: 0.3 });
+                      } else if (hoveredObject.name.startsWith('marker_')) {
+                            const countryCode = hoveredObject.name.split('_')[1];
+                            // Look up full name maybe? For now just use code.
+                            tooltipText = `Visitor Location: ${countryCode}`;
+                             // Optional: Highlight marker
+                             if (hoveredObject.material.color) gsap.to(hoveredObject.material.color, { r:1, g:1, b:0, duration: 0.3 }); // Yellow highlight
+                      }
+        
+                      if (tooltipText) {
+                           this.tooltip.innerHTML = tooltipText;
+                           this.tooltip.style.left = `${event.clientX + 15}px`; // Position near cursor
+                           this.tooltip.style.top = `${event.clientY}px`;
+                           this.tooltip.classList.add('visible'); // Make visible using CSS class
+                      } else {
+                           this.tooltip.classList.remove('visible');
+                      }
+        
+                 } else {
+                      // Not hovering over anything interesting
+                      this.tooltip.classList.remove('visible');
+                       // Reset highlights
+                       if (this.earthMaterial.emissive) gsap.to(this.earthMaterial.emissive, { r:0, g:0, b:0, duration: 0.3 });
+                       Object.values(this.activeVisitorMarkers).forEach(marker => {
+                            if (marker.material.color) gsap.to(marker.material.color, { r:1, g:0, b:1, duration: 0.3 }); // Back to magenta
+                       });
+                 }
+            }
+        
+            // --- CLICK HANDLING ---
+            handleClick(event) {
+                // (Keep your original handleClick if it did something specific, e.g., pulse effect)
+                // Example: Pulse effect on click location
+                if (!this.camera || !this.raycaster || !this.earth) return;
+        
+                this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
                 this.raycaster.setFromCamera(this.mouse, this.camera);
-                const intersects = this.raycaster.intersectObject(this.earth);
-                if (intersects.length > 0) {
-                    this.createPulseEffect(intersects[0].point);
-                }
+                const intersects = this.raycaster.intersectObject(this.earth); // Only check earth for pulse
+                 if (intersects.length > 0) {
+                     this.createPulseEffect(intersects[0].point);
+                 }
             }
-            
-              createPulseEffect(position) {
-                const geo = new THREE.SphereGeometry(0.05, 16, 16);
-                const mat = new THREE.MeshBasicMaterial({ color: 0x00f3ff, transparent: true });
-                const sphere = new THREE.Mesh(geo, mat);
-                sphere.position.copy(position);
-                this.scene.add(sphere);
-            
-                gsap.to(sphere.scale, {
-                  x: 2, y: 2, z: 2,
-                  duration: 1,
-                  ease: 'power2.out',
-                  onComplete: () => this.scene.remove(sphere)
-                });
-                gsap.to(mat, {
-                  opacity: 0,
-                  duration: 1,
-                  ease: 'power2.out'
-                });
-              }
-            
-              // ----------------------------------
-              // 9) RESIZE HANDLER
-              // ----------------------------------
-              setupResizeHandler() {
+        
+             // --- PULSE EFFECT ---
+            createPulseEffect(position) {
+                // (Assuming your original createPulseEffect code is here)
+                 // Example if missing:
+                 const pulseGeo = new THREE.SphereGeometry(0.05, 16, 16);
+                 const pulseMat = new THREE.MeshBasicMaterial({ color: 0x00f3ff, transparent: true, opacity: 0.8 });
+                 const pulseSphere = new THREE.Mesh(pulseGeo, pulseMat);
+                 pulseSphere.position.copy(position);
+                 this.scene.add(pulseSphere); // Add pulse directly to scene, not earth
+        
+                 gsap.to(pulseSphere.scale, { x: 15, y: 15, z: 15, duration: 0.8, ease: 'power2.out' });
+                 gsap.to(pulseSphere.material, { opacity: 0, duration: 1.0, ease: 'power2.out', delay: 0.2, onComplete: () => {
+                      this.scene.remove(pulseSphere);
+                      pulseGeo.dispose();
+                      pulseMat.dispose();
+                 }});
+            }
+        
+            // --- RESIZE HANDLER ---
+            setupResizeHandler() {
+                // (Assuming your original setupResizeHandler code is here)
+                // Example if missing:
+                let resizeTimeout;
                 window.addEventListener('resize', () => {
-                    this.camera.aspect = window.innerWidth / window.innerHeight;
-                    this.camera.updateProjectionMatrix();
-                    this.renderer.setSize(window.innerWidth, window.innerHeight);
+                    clearTimeout(resizeTimeout);
+                    resizeTimeout = setTimeout(() => {
+                        if (this.renderer && this.camera) {
+                             this.camera.aspect = window.innerWidth / window.innerHeight;
+                             this.camera.updateProjectionMatrix();
+                             this.renderer.setSize(window.innerWidth, window.innerHeight);
+                             this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Re-apply pixel ratio
+                        }
+                    }, 100); // Debounce resize event
                 });
             }
-    
-            
-              // ----------------------------------
-              // 10) ANIMATION LOOP
-              // ----------------------------------
-              animate() {
-                requestAnimationFrame(() => this.animate());
-            
-                // Always auto-rotate
-                this.earth.rotation.y += this.autoRotateSpeed;
-
-                // Subtle float on points
-                const t = Date.now() * 0.002;
-                this.connectionPoints.forEach((point, i) => {
-                    point.position.y += Math.sin(t + i) * 0.0005;
-                    point.rotation.x += 0.01;
-                    point.rotation.y += 0.01;
-                });
-
-                // Render
-                this.renderer.render(this.scene, this.camera);
+        
+            // --- ANIMATION LOOP ---
+            animate() {
+                // Use instance binding or arrow function to preserve 'this' context
+                requestAnimationFrame(this.animate.bind(this));
+        
+                // Rotate Earth
+                if (this.earth) {
+                    this.earth.rotation.y += this.autoRotateSpeed;
+                }
+                // Rotate Starfield slowly in opposite direction maybe
+                 if (this.starField) {
+                     this.starField.rotation.y -= this.autoRotateSpeed * 0.1;
+                 }
+        
+                // Your original connection point animations if any?
+                // const t = Date.now() * 0.001;
+                // this.connectionPoints.forEach((point, i) => {
+                //      point.scale.setScalar(Math.sin(t * 0.5 + i * 0.5) * 0.3 + 0.7);
+                // });
+        
+        
+                // Render the scene
+                if (this.renderer && this.scene && this.camera) {
+                    this.renderer.render(this.scene, this.camera);
+                }
             }
         }
         
@@ -1610,5 +1609,5 @@
             element.style.transform = 'translateZ(0)';
             element.style.backfaceVisibility = 'hidden';
         };
-    })();
+    })(); // Ensure the IIFE is properly closed
 

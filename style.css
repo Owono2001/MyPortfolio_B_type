@@ -3886,7 +3886,7 @@ input, textarea, button {
   
   /* Glitch animation for messages */
   .message.ai-message {
-    animation: glitch 1s infinite;
+    /*animation: glitch 4s infinite;*/
     background: linear-gradient(45deg, #001f3f 0%, #001a35 100%);
     border: 1px solid #0ff;
   }
@@ -3980,3 +3980,651 @@ input, textarea, button {
 /* ============================================= */
 /* === END OF GLOBE OVERLAY STYLING          === */
 /* ============================================= */
+
+/* Add this to style.css */
+body.light-theme {
+    --cyber-bg: #f0f4f8;
+    --cyber-text-color: #2c3e50;
+    --card-bg: rgba(255, 255, 255, 0.8);
+    /* Override other colors as needed */
+    background-color: var(--cyber-bg);
+    color: var(--cyber-text-color);
+  }
+  body.light-theme .navbar,
+  body.light-theme .project-card /* etc... list elements needing background change */ {
+     background: var(--card-bg);
+     /* Adjust borders, text colors inside elements */
+  }
+  /* Add more overrides... */
+
+
+  /* ======================================= */
+/* === MODAL WINDOW STYLES             === */
+/* ======================================= */
+
+.modal-overlay {
+    position: fixed; /* Stay in place */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(10, 10, 18, 0.85); /* Semi-transparent dark background */
+    backdrop-filter: blur(8px); /* Blur background content */
+    display: flex; /* Use flexbox for centering content */
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+    z-index: 2000; /* Ensure it's on top of other content */
+    opacity: 0; /* Start hidden */
+    visibility: hidden; /* Start hidden */
+    transition: opacity 0.4s ease, visibility 0s linear 0.4s; /* Fade transition */
+  }
+  
+  .modal-overlay.visible {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.4s ease, visibility 0s linear 0s;
+  }
+  
+  .modal-content {
+    position: relative; /* For positioning the close button */
+    background: rgba(16, 16, 32, 0.95); /* Darker modal background */
+    border: 2px solid var(--cyber-cyan);
+    border-radius: 10px;
+    padding: 2rem 2.5rem;
+    max-width: 800px; /* Max width of modal */
+    width: 90%; /* Responsive width */
+    max-height: 85vh; /* Limit height, enable scrolling */
+    overflow-y: auto; /* Add scrollbar if content exceeds height */
+    box-shadow: 0 0 40px rgba(0, 243, 255, 0.3);
+    transform: scale(0.95); /* Start slightly scaled down */
+    transition: transform 0.4s ease;
+  }
+  
+  .modal-overlay.visible .modal-content {
+    transform: scale(1); /* Scale up when visible */
+  }
+  
+  .close-modal-btn {
+    position: absolute;
+    top: 0.8rem;
+    right: 0.8rem;
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: var(--cyber-pink);
+    cursor: pointer;
+    line-height: 1;
+    padding: 0.2rem;
+    transition: transform 0.3s ease, color 0.3s ease;
+  }
+  
+  .close-modal-btn:hover {
+    color: #ff80ff; /* Lighter pink on hover */
+    transform: rotate(90deg);
+  }
+  
+  .modal-title {
+    color: var(--cyber-cyan);
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 1px solid rgba(0, 243, 255, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    text-shadow: 0 0 10px rgba(0, 243, 255, 0.4);
+  }
+  
+  .modal-title i {
+    color: var(--cyber-pink); /* Pink icon */
+  }
+  
+  .modal-body h4 {
+    color: var(--cyber-pink); /* Pink subheadings */
+    font-size: 1.3rem;
+    margin-top: 1.5rem;
+    margin-bottom: 0.8rem;
+  }
+  
+  .modal-body p,
+  .modal-body ul {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 1rem;
+    line-height: 1.7;
+    margin-bottom: 1rem;
+  }
+  
+  .modal-body ul {
+    list-style: none;
+    padding-left: 0;
+  }
+  
+  .modal-body li {
+    position: relative;
+    padding-left: 1.8rem;
+    margin-bottom: 0.6rem;
+  }
+  
+  .modal-body li::before {
+    content: '>'; /* Cyber bullet */
+    position: absolute;
+    left: 0;
+    color: var(--cyber-cyan);
+    font-weight: bold;
+    font-family: 'Courier New', monospace;
+  }
+  
+  /* Style for the trigger button (ensure it matches .cyber-button) */
+  #open-eg-modal-btn {
+    /* Uses existing .cyber-button styles, you can add specific overrides here if needed */
+    /* Example: Add more margin if needed */
+    margin: 1rem auto;
+  }
+  
+  /* Hide modal content initially */
+  .modal-overlay.hidden {
+      display: none; /* Or use opacity/visibility for transitions */
+  }
+  
+  /* Responsive adjustments for modal */
+  @media (max-width: 768px) {
+    .modal-content {
+      padding: 1.5rem;
+      max-height: 90vh;
+    }
+    .modal-title {
+      font-size: 1.5rem;
+    }
+     .modal-body h4 {
+      font-size: 1.1rem;
+    }
+     .modal-body p, .modal-body ul {
+      font-size: 0.9rem;
+    }
+  }
+
+  /* ======================================= */
+/* === STYLES FOR EXPANDED MODAL CONTENT === */
+/* ======================================= */
+
+/* Style for Flag in Title */
+.modal-title-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem; /* Space between flag and title */
+  margin-bottom: 1.5rem; /* Add space below title area */
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid rgba(0, 243, 255, 0.3);
+}
+
+.modal-flag {
+  height: 30px; /* Adjust size as needed */
+  width: auto;
+  border: 1px solid rgba(255, 255, 255, 0.3); /* Subtle border */
+  box-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
+}
+
+.modal-title {
+  margin-bottom: 0; /* Remove default margin */
+  padding-bottom: 0;
+  border-bottom: none; /* Remove default border */
+  flex-grow: 1; /* Allow title to take remaining space */
+}
+
+/* Icons for Section Headers */
+.modal-body h4 i {
+  color: var(--cyber-cyan); /* Cyan icon color */
+  margin-right: 0.75rem;
+  width: 20px; /* Ensure consistent alignment */
+  text-align: center;
+}
+
+/* Styling for Image Groups */
+.city-images,
+.culture-images,
+.school-images {
+  display: flex; /* Arrange images in a row */
+  flex-wrap: wrap; /* Allow wrapping on smaller screens */
+  gap: 1rem; /* Space between images */
+  margin-top: 1rem; /* Space above the image group */
+  justify-content: center; /* Center images if they wrap */
+  padding: 0.5rem;
+  background: rgba(0, 0, 0, 0.2); /* Slight background for image areas */
+  border-radius: 4px;
+}
+
+.city-images img,
+.culture-images img,
+.school-images img {
+  max-width: 150px; /* Limit image size */
+  max-height: 120px; /* Limit image height */
+  height: auto; /* Maintain aspect ratio */
+  width: auto; /* Maintain aspect ratio */
+  border-radius: 4px;
+  border: 1px solid rgba(0, 243, 255, 0.2);
+  object-fit: cover; /* Crop images nicely if needed */
+  transition: transform 0.3s ease;
+}
+
+.city-images img:hover,
+.culture-images img:hover,
+.school-images img:hover {
+    transform: scale(1.05); /* Slight zoom on hover */
+}
+
+/* Styling for figures (optional, for captions) */
+.culture-images figure,
+.school-images figure {
+    margin: 0;
+    text-align: center;
+}
+
+.culture-images figcaption,
+.school-images figcaption {
+    font-size: 0.8em;
+    color: rgba(255, 255, 255, 0.7);
+    margin-top: 0.4rem;
+}
+
+
+/* Responsive adjustments for images */
+@media (max-width: 480px) {
+  .city-images img,
+  .culture-images img,
+  .school-images img {
+      max-width: 100px; /* Smaller images on small phones */
+      max-height: 80px;
+  }
+
+  .city-images,
+  .culture-images,
+  .school-images {
+      gap: 0.5rem;
+  }
+}
+/* ========================================== */
+/* === (IMPROVED) MODAL WINDOW STYLES     === */
+/* === Replace previous modal CSS block   === */
+/* ========================================== */
+
+/* --- Modal Overlay (Background) --- */
+.modal-overlay {
+    position: fixed; /* Cover the whole screen */
+    inset: 0; /* Equivalent to top: 0; left: 0; right: 0; bottom: 0; */
+    background-color: rgba(10, 10, 18, 0.9); /* Use theme background, semi-transparent */
+    backdrop-filter: blur(10px); /* Stronger blur */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1.5rem; /* Padding around the content box */
+    z-index: 2000; /* High z-index to be on top */
+    opacity: 0; /* Hidden by default */
+    visibility: hidden;
+    /* Smooth fade-in for overlay and scale for content */
+    transition: opacity 0.4s ease, visibility 0s linear 0.4s;
+  }
+  
+  .modal-overlay.visible {
+    opacity: 1;
+    visibility: visible;
+    transition-delay: 0s; /* Ensure visibility transition is immediate on show */
+  }
+  
+  /* --- Modal Content Box --- */
+  .modal-content {
+    position: relative; /* For close button positioning */
+    background: rgba(16, 16, 32, 0.97); /* Slightly different, almost opaque background */
+    border: 2px solid var(--cyber-cyan); /* Use theme color */
+    border-radius: 10px;
+    padding: 2rem 2.5rem; /* Standard padding */
+    max-width: 850px; /* Limit width */
+    width: 95%; /* Responsive width */
+    max-height: 88vh; /* Limit height */
+    overflow-y: auto; /* Enable scrollbar if content overflows */
+    box-shadow: 0 0 40px rgba(0, 243, 255, 0.35), /* Cyan glow */
+                inset 0 0 15px rgba(0, 243, 255, 0.1); /* Inner glow */
+    transform: scale(0.95); /* Start slightly small */
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Bouncy scale transition */
+  }
+  
+  .modal-overlay.visible .modal-content {
+    transform: scale(1); /* Scale to full size when visible */
+  }
+  
+  /* --- Close Button --- */
+  .close-modal-btn {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    background: transparent;
+    border: none;
+    font-size: 2.2rem; /* Larger close icon */
+    font-weight: bold;
+    color: var(--cyber-pink); /* Use theme pink */
+    cursor: pointer;
+    line-height: 1;
+    padding: 0.3rem;
+    text-shadow: 0 0 8px var(--cyber-pink);
+    transition: transform 0.3s ease, color 0.3s ease;
+    z-index: 10; /* Ensure it's above content */
+  }
+  
+  .close-modal-btn:hover {
+    color: #ff80ff; /* Lighter pink */
+    transform: rotate(180deg) scale(1.1); /* Rotate and scale on hover */
+  }
+  
+  /* --- Modal Header (Flag + Title) --- */
+  .modal-title-container {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem; /* Increased space */
+    margin-bottom: 2rem; /* Space below header */
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(0, 243, 255, 0.4); /* More visible border */
+  }
+  
+  .modal-flag {
+    height: 35px; /* Slightly larger flag */
+    width: auto;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+    flex-shrink: 0; /* Prevent flag from shrinking */
+  }
+  
+  .modal-title {
+    color: var(--cyber-cyan);
+    font-size: 2rem; /* Larger title */
+    font-weight: 700;
+    margin: 0; /* Reset margin */
+    padding: 0;
+    border: none; /* Reset border */
+    flex-grow: 1;
+    text-shadow: 0 0 15px rgba(0, 243, 255, 0.5); /* Stronger text glow */
+  }
+  
+  .modal-title i { /* Icon next to title */
+    color: var(--cyber-pink);
+    margin-right: 0.5rem; /* Space after icon if needed */
+    vertical-align: middle; /* Align icon nicely */
+  }
+  
+  /* --- Modal Body Content --- */
+  .modal-body h4 {
+    color: var(--cyber-pink); /* Pink section headers */
+    font-size: 1.4rem; /* Slightly larger subheadings */
+    font-weight: 600;
+    margin-top: 2rem; /* More space above headers */
+    margin-bottom: 1rem; /* More space below headers */
+    text-shadow: 0 0 10px rgba(255, 0, 255, 0.4); /* Pink glow */
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+  .modal-body h4:first-child {
+      margin-top: 0; /* Remove top margin for the very first heading */
+  }
+  
+  .modal-body h4 i { /* Icons within body headers */
+    color: var(--cyber-cyan);
+    font-size: 1.1em; /* Scale icon with text */
+    text-shadow: 0 0 8px rgba(0, 243, 255, 0.5);
+  }
+  
+  .modal-body p,
+  .modal-body ul {
+    color: #e0e0e0; /* Use standard light text color */
+    font-size: 1rem; /* Standard readable size */
+    line-height: 1.8; /* Slightly more line spacing */
+    margin-bottom: 1.2rem; /* Consistent paragraph/list spacing */
+  }
+  
+  .modal-body ul {
+    list-style: none;
+    padding-left: 0;
+  }
+  
+  .modal-body li {
+    position: relative;
+    padding-left: 2rem; /* More space for bullet */
+    margin-bottom: 0.7rem; /* Space between list items */
+  }
+  
+  .modal-body li::before {
+    content: '»'; /* Cyber bullet */
+    position: absolute;
+    left: 0.5rem; /* Position bullet nicely */
+    top: 0.1em; /* Adjust vertical alignment */
+    color: var(--cyber-cyan);
+    font-weight: bold;
+    font-size: 1.2em;
+    line-height: 1;
+  }
+  
+  .modal-body strong { /* Style bold text for emphasis */
+      color: var(--cyber-pink);
+      font-weight: 600;
+  }
+  
+  /* --- Image Styling within Modal --- */
+  .city-images,
+  .culture-images,
+  .school-images {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 1.2rem;
+    margin-bottom: 1rem;
+    justify-content: space-around; /* Distribute space */
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.3); /* Darker background for image areas */
+    border: 1px solid rgba(0, 243, 255, 0.15);
+    border-radius: 6px;
+  }
+  
+  .city-images img,
+  .culture-images img,
+  .school-images img {
+    max-width: 180px; /* Slightly larger max-width */
+    max-height: 140px;
+    height: auto;
+    width: auto;
+    border-radius: 5px;
+    border: 1px solid var(--cyber-cyan); /* Cyan border */
+    object-fit: cover;
+    box-shadow: 0 0 10px rgba(0, 243, 255, 0.2); /* Cyan glow */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer; /* Indicate they might be clickable/zoomable (future?) */
+  }
+  
+  .city-images img:hover,
+  .culture-images img:hover,
+  .school-images img:hover {
+      transform: scale(1.08) rotate(1deg); /* More noticeable hover */
+      box-shadow: 0 0 20px rgba(0, 243, 255, 0.4);
+  }
+  
+  .culture-images figure,
+  .school-images figure {
+      margin: 0;
+      text-align: center;
+      display: flex; /* Use flexbox for better caption control */
+      flex-direction: column;
+      align-items: center;
+  }
+  
+  .culture-images figcaption,
+  .school-images figcaption {
+      font-size: 0.85rem;
+      color: #aaa; /* Lighter caption color */
+      margin-top: 0.5rem;
+      font-style: italic;
+  }
+  
+  /* --- Custom Scrollbar for Modal --- */
+  .modal-content::-webkit-scrollbar {
+    width: 8px;
+  }
+  .modal-content::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+  }
+  .modal-content::-webkit-scrollbar-thumb {
+    background-color: var(--cyber-cyan);
+    border-radius: 10px;
+    border: 2px solid rgba(0, 0, 0, 0.3);
+  }
+  .modal-content::-webkit-scrollbar-thumb:hover {
+    background-color: var(--cyber-pink);
+  }
+  /* Firefox scrollbar (basic) */
+  .modal-content {
+    scrollbar-width: thin;
+    scrollbar-color: var(--cyber-cyan) rgba(0, 0, 0, 0.3);
+  }
+  
+  
+  /* --- Responsive for Modal --- */
+  @media (max-width: 768px) {
+    .modal-content {
+      padding: 1.5rem;
+      max-height: 90vh; /* Allow slightly more height on mobile */
+    }
+    .modal-title {
+      font-size: 1.6rem; /* Adjust title size */
+    }
+     .modal-body h4 {
+      font-size: 1.2rem; /* Adjust heading size */
+    }
+     .modal-body p, .modal-body ul {
+      font-size: 0.95rem; /* Adjust text size */
+    }
+    .city-images, .culture-images, .school-images {
+        justify-content: center; /* Center images better */
+        gap: 0.8rem;
+    }
+    .city-images img, .culture-images img, .school-images img {
+        max-width: 120px; /* Adjust image size */
+        max-height: 100px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+      .modal-content {
+          padding: 1rem 1.2rem;
+          max-height: 85vh;
+      }
+       .modal-title-container { gap: 0.8rem; }
+       .modal-flag { height: 25px; }
+       .modal-title { font-size: 1.4rem; }
+       .modal-body h4 { font-size: 1.1rem; margin-top: 1.5rem; margin-bottom: 0.6rem;}
+       .modal-body p, .modal-body ul { font-size: 0.9rem; line-height: 1.6;}
+       .modal-body li { padding-left: 1.5rem; margin-bottom: 0.5rem;}
+       .city-images img, .culture-images img, .school-images img {
+        max-width: 90px; /* Further reduce image size */
+        max-height: 70px;
+    }
+  }
+  
+  /* ========================================== */
+  /* === END OF (IMPROVED) MODAL WINDOW CSS === */
+  /* ========================================== */
+
+
+  /* ======================================= */
+/* === FIXED EG INFO BUTTON STYLES     === */
+/* ======================================= */
+
+#eg-fixed-button-container {
+    position: fixed;
+    bottom: 20px; /* Distance from bottom */
+    right: 20px;  /* Distance from right */
+    z-index: 990;
+  }
+  
+  #eg-fixed-button-container button#open-eg-modal-btn {
+    /* Use cyber-button base styles but override for small size */
+    padding: 0.6rem 0.8rem; /* Smaller padding */
+    border: 2px solid var(--cyber-cyan);
+    border-radius: 50%; /* Make it round */
+    color: var(--cyber-cyan);
+    background: rgba(10, 10, 18, 0.85); /* Match theme background */
+    backdrop-filter: blur(5px);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px; /* Fixed width */
+    height: 50px; /* Fixed height */
+    box-shadow: 0 0 15px rgba(0, 243, 255, 0.3);
+    transition: all 0.3s ease;
+    overflow: hidden; /* Hide text initially */
+    white-space: nowrap; /* Prevent text wrap */
+  }
+  
+  /* Change the position of the fixed button */
+#eg-fixed-button-container {
+    position: fixed;
+    /* Position vertically centered on the right edge */
+    top: 50%;                 /* Move top edge to the middle */
+    transform: translateY(-50%); /* Shift button up by half its height to center it */
+    right: 20px;                /* Keep distance from right edge */
+    z-index: 990;               /* Keep z-index */
+  }
+  
+  #eg-fixed-button-container button#open-eg-modal-btn span {
+    /* Hide text by default, show on hover maybe */
+    display: none;
+    /* Or show it always if you prefer */
+    /* display: inline; */
+    /* margin-left: 0.5rem; */
+    /* font-size: 0.8rem; */
+  }
+  
+  #eg-fixed-button-container button#open-eg-modal-btn:hover {
+    transform: scale(1.1);
+    border-radius: 8px; /* Square corners on hover */
+    width: auto; /* Allow width to expand for text */
+    padding: 0.6rem 1.2rem; /* Adjust padding */
+    background: rgba(0, 243, 255, 0.1);
+    box-shadow: 0 0 25px rgba(0, 243, 255, 0.5);
+  }
+  
+  #eg-fixed-button-container button#open-eg-modal-btn:hover span {
+     display: inline; /* Show text on hover */
+     margin-left: 0.5rem;
+     font-size: 0.8rem;
+     font-weight: 600;
+     text-transform: uppercase;
+     letter-spacing: 1px;
+  }
+  #eg-fixed-button-container button#open-eg-modal-btn:hover i {
+    opacity: 0.8; /* Example style to avoid an empty rule set */
+    transform: scale(1.1); /* Optional additional style */
+  }
+     /* Optional: slightly fade icon when text shows */
+     /* opacity: 0.8; */
+  }
+  
+  /* ======================================= */
+  /* === MAP IMAGE STYLES (Inside Modal) === */
+  /* ======================================= */
+  
+  .map-image-container {
+      text-align: center; /* Center the image block */
+      margin: 1.5rem 0; /* Space around the map */
+      padding: 0.5rem;
+      background: rgba(0,0,0,0.2);
+      border-radius: 4px;
+  }
+  
+  .eg-map-image {
+    display: inline-block; /* Allows centering via text-align on container */
+    max-width: 90%;    /* Responsive width, limit to 90% of modal body */
+    height: auto;       /* Maintain aspect ratio */
+    border-radius: 6px; /* Rounded corners */
+    border: 1px solid var(--cyber-cyan); /* Theme border */
+    box-shadow: 0 0 15px rgba(0, 243, 255, 0.2); /* Theme glow */
+    margin-top: 0.5rem; /* Space below heading */
+  }

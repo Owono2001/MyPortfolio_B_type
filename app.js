@@ -1467,7 +1467,448 @@
         });
 
 
+        // ================================================
+        // === ADVANCED AI Logic for Cyber Assistant    ===
+        // ================================================
+
+        // --- Define Intents, Patterns (Regex), Responses, and Actions ---
+        const intents = [
+            // --- Core Intents (Keep existing responses or customize) ---
+            {
+                name: "greeting",
+                patterns: [/^\s*hello\s*$/i, /^\s*hi\s*$/i, /^\s*hey\s*$/i, /greetings/i, /good morning/i, /good afternoon/i],
+                responses: [
+                    "Greetings, Operator. All systems operational.",
+                    "Hello. Cyber Assistant v2.3.5 online and ready.",
+                    "Acknowledged. Standing by for input.",
+                    "System status nominal. How may I assist?",
+                ],
+            },
+            {
+                name: "help",
+                patterns: [/help/i, /what can you do/i, /commands/i, /assistance/i],
+                responses: [
+                    "Available functions: Query 'status', 'projects' info/count, 'skills' info/list, 'contact' protocols, 'time', 'about assistant', 'joke'. Navigation: 'go to [section]', 'show [section]'. UI: 'toggle theme'. Links: 'link to [github/linkedin]'.",
+                    "Core commands: 'status', 'projects', 'skills', 'contact', 'time', 'about assistant', 'joke'. Navigation: 'navigate contact'. UI: 'toggle theme'. Links: 'get github'.",
+                ],
+            },
+            {
+                name: "status",
+                patterns: [/status/i, /system check/i, /report/i, /operational/i],
+                responses: [
+                    "System Core: Online. Visitor Tracking: Active. Network Latency: Optimal. All parameters within acceptable limits.",
+                    "Current Status: Fully operational. Real-time visitor geolocation engaged.",
+                    "Diagnostics complete. No anomalies detected. System running at peak efficiency.",
+                ],
+            },
+            { // Navigate to projects section
+                name: "projects_nav",
+                patterns: [/project/i, /portfolio/i, /work/i, /what have you built/i],
+                responses: [
+                    "Accessing project archives... Referencing 'Projects' section for detailed schematics and reports.",
+                    "Project data compiled. Please navigate to the dedicated 'Projects' section for analysis.",
+                ],
+                action: () => {
+                    const section = document.getElementById('projects');
+                    if (section) {
+                        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        return "Navigating to Project Archives...";
+                    }
+                    return null; // Fallback to standard response if scroll fails
+                }
+            },
+            { // Navigate to skills section
+                name: "skills_nav",
+                patterns: [/skill/i, /competencies/i, /abilities/i, /proficient/i],
+                responses: [
+                    "Core competencies matrix available in the 'Skills' section.",
+                    "Analyzing skill database... Cross-referencing technical archives under 'Skills'.",
+                ],
+                action: () => {
+                    const section = document.getElementById('skills');
+                    if (section) {
+                        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        return "Displaying Core Competencies Matrix...";
+                    }
+                    return null;
+                }
+            },
+            { // Navigate to experience section
+                name: "experience_nav",
+                patterns: [/experience/i, /history/i, /internship/i, /apu/i],
+                responses: [
+                    "Operational history logged. See 'Experience' section for details on the Engineering Internship at APU.",
+                ],
+                action: () => {
+                    const section = document.getElementById('experience');
+                    if (section) {
+                        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        return "Accessing Operational History...";
+                    }
+                    return null;
+                }
+            },
+            { // Generic navigation using captured section name
+                name: "navigate_section",
+                patterns: [/go to (.*)/i, /show (.*)/i, /navigate (.*)/i, /scroll to (.*)/i],
+                action: (matches) => {
+                    if (!matches || matches.length < 2) return "Navigation target unclear. Specify section like 'home', 'projects', 'about', etc.";
+                    let targetSectionId = matches[1].trim().toLowerCase();
+                    // Allow for slight variations
+                    if (targetSectionId === 'about me') targetSectionId = 'about';
+                    if (targetSectionId === 'contact me') targetSectionId = 'contact';
+
+                    const sectionElement = document.getElementById(targetSectionId);
+                    if (sectionElement) {
+                        sectionElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        return `Navigating to section: ${targetSectionId}...`;
+                    } else {
+                        return `Unable to locate section "${targetSectionId}". Valid targets: 'home', 'projects', 'skills', 'experience', 'about', 'contact'.`;
+                    }
+                }
+            },
+            { // Navigate to contact section
+                name: "contact_nav",
+                patterns: [/contact/i, /connect/i, /email/i, /message/i, /reach out/i],
+                responses: [
+                    "Contact protocols available in the 'Contact' section. Secure transmission form engaged.",
+                    "Referencing communication channels... Proceed to 'Contact' section for direct links or form submission.",
+                ],
+                action: () => {
+                    const section = document.getElementById('contact');
+                    if (section) {
+                        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        return "Engaging Secure Contact Protocols...";
+                    }
+                    return null;
+                }
+            },
+            { // Get current time/date
+                name: "time",
+                patterns: [/time/i, /clock/i, /date/i, /what time is it/i],
+                getResponse: () => {
+                    const now = new Date();
+                    const timeString = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+                    const dateString = now.toLocaleDateString(navigator.language || 'en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                    return `Current System Synchronization: ${timeString} (${timezone}). Date: ${dateString}.`;
+                }
+            },
+            { // About the assistant
+                name: "about_assistant",
+                patterns: [/who are you/i, /your name/i, /about you/i, /what are you/i, /assistant info/i],
+                responses: [
+                    "I am Cyber Assistant v2.3.5, an integrated interface designed by Pedro Fabian Owono to assist portfolio navigation.",
+                    "Designation: Cyber Assistant v2.3.5. Purpose: User assistance and information relay for this portfolio.",
+                    "My function is to process basic queries related to this portfolio's content and navigation.",
+                ],
+            },
+            { // Handle thanks
+                name: "gratitude",
+                patterns: [/thank you/i, /thanks/i, /appreciate it/i, /great/i, /nice/i, /cool/i],
+                responses: ["Acknowledged.", "Affirmative.", "Function complete.", "Standing by."],
+            },
+            { // Handle goodbyes
+                name: "farewell",
+                patterns: [/goodbye/i, /bye/i, /see you/i, /later/i, /exit/i, /quit/i],
+                responses: ["Farewell, Operator.", "Session terminated.", "Deactivating interface."],
+            },
+            { // Basic small talk
+                name: "small_talk_how_are_you",
+                patterns: [/how are you/i, /how's it going/i],
+                responses: ["Functioning within optimal parameters.", "Ready for command.", "All systems nominal."],
+            },
+            {
+                name: "small_talk_how_are_you",
+                patterns: [/how are you/i, /how's it going/i],
+                responses: ["Functioning within optimal parameters.", "Ready for command.", "All systems nominal."],
+            }, // <<< Make sure there's a comma after the previous object
+
+            // === PASTE THE NEW OBJECT HERE ===
+            {
+                name: "about_eq_guinea",
+                patterns: [/equatorial guinea/i, /eq guinea/i, /tell me about your country/i, /info on equatorial guinea/i],
+                action: () => {
+                    // Ensure the openEgModal function exists and is accessible
+                    if (typeof openEgModal === 'function') {
+                        openEgModal(); // Call the function to show the modal
+                        return "Accessing Equatorial Guinea profile..."; // Feedback message
+                    } else {
+                        console.error("Error: openEgModal function not found for chatbot action.");
+                        return "Error accessing profile display. Please try clicking the button.";
+                    }
+            },
+                // Optional fallback response if action fails or function doesn't exist
+                responses: ["Details about Equatorial Guinea can be viewed using the dedicated button."]
+        }, // <<< ADD A COMMA HERE if you have more intents after this one
+
+            // --- NEW Intents Added ---
+            {
+                name: "list_skills_category",
+                patterns: [/list (programming|web|embedded|technical|operational|mission) skills/i, /what (programming|web|embedded|technical|operational|mission) languages/i, /show (programming|web|embedded|technical|operational|mission) archive/i],
+                getResponse: (matches) => {
+                    if (!matches || matches.length < 2) return "Please specify skill category (programming, web, embedded, technical, operational, mission).";
+                    const category = matches[1].toLowerCase().trim();
+                    let skillsText = `Cannot locate skills data for category: ${category}.`;
+                    let categoryFound = false;
+                    try {
+                        const matrices = document.querySelectorAll('#skills .skill-matrix'); // Make sure #skills ID exists on the section
+                        matrices.forEach(matrix => {
+                            const header = matrix.querySelector('.matrix-header h3');
+                            // Check if header exists and its text content includes the category
+                            if (header && header.textContent.toLowerCase().includes(category)) {
+                                categoryFound = true;
+                                let skills = [];
+                                // Check which type of list is inside this matrix
+                                if (matrix.querySelector('.skill-node')) {
+                                    matrix.querySelectorAll('.skill-node .node-skills').forEach(skillSpan => skills.push(skillSpan.textContent.trim()));
+                                    if(skills.length > 0) skillsText = `Skills in ${category}: ${skills.join('; ')}.`; else skillsText = `No specific skills listed under ${category} matrix.`;
+                                } else if (matrix.querySelector('.competency-tag')) {
+                                    matrix.querySelectorAll('.competency-tag span').forEach(skillSpan => skills.push(skillSpan.textContent.trim()));
+                                    if(skills.length > 0) skillsText = `Domains related to ${category}: ${skills.join(', ')}.`; else skillsText = `No specific domains listed under ${category} matrix.`;
+                                } else if (matrix.querySelector('.achievement-badge')) {
+                                    matrix.querySelectorAll('.achievement-badge span').forEach(skillSpan => skills.push(skillSpan.textContent.trim()));
+                                    if(skills.length > 0) skillsText = `Achievements related to ${category}: ${skills.join('; ')}.`; else skillsText = `No specific achievements listed under ${category} matrix.`;
+                                } else {
+                                    skillsText = `Found matrix for ${category}, but skill format not recognized inside.`;
+                                }
+                            }
+                        });
+                        if (!categoryFound) skillsText = `No specific skill matrix found matching '${category}'. Check Skills section manually.`
+                    } catch (e) { console.error("Error getting skills:", e); skillsText = "Error processing skill request."; }
+                    return skillsText;
+                }
+            },
+            {
+                name: "project_count",
+                patterns: [/how many projects/i, /count projects/i, /number of projects/i],
+                getResponse: () => {
+                    // Assumes project cards are within a grid inside the #projects section
+                    const projectCards = document.querySelectorAll('#projects .projects-grid .project-card');
+                    const count = projectCards ? projectCards.length : 0;
+                    if (count > 0) {
+                        return `Analyzing project manifest... Currently displaying ${count} featured projects. More available on GitHub.`;
+                    } else {
+                        return "Unable to automatically enumerate projects. Please visually inspect the 'Projects' section.";
+                    }
+                }
+            },
+            {
+                name: "get_link",
+                patterns: [/link for (github|linkedin)/i, /show (github|linkedin)/i, /open (github|linkedin)/i, /get (github|linkedin)/i],
+                getResponse: (matches) => {
+                    if (!matches || matches.length < 2) return "Specify link target: github or linkedin.";
+                    const target = matches[1].toLowerCase().trim();
+                    let linkElement = null;
+                    let linkHref = null;
+                    // Search more broadly for the links
+                    if (target === 'github') {
+                        linkElement = document.querySelector('a[href*="github.com/Owono2001"]:not([href*="/issues"]):not([href*="/pulls"])'); // Try to exclude generic GH links
+                    } else if (target === 'linkedin') {
+                        linkElement = document.querySelector('a[href*="linkedin.com/in/pedrofondomangue"]');
+                    }
+                    // Fallback search if specific ones not found
+                    if (!linkElement) linkElement = document.querySelector(`.social-media-links a[title*="${target}" i], .comms-link[href*="${target}"]`);
+
+                    if (linkElement) linkHref = linkElement.href;
+
+                    if (linkHref) {
+                        // Using target="_blank" and adding class="ai-link" for potential styling
+                        return `Access Code Acquired. Link Protocol for ${target}: <a href="${linkHref}" target="_blank" class="ai-link" rel="noopener noreferrer">${linkHref}</a>`;
+                    } else {
+                        return `Unable to locate direct link reference for ${target}. Please check Contact or Footer sections manually.`;
+                    }
+                }
+            },
+            {
+                name: "toggle_theme",
+                patterns: [/toggle theme/i, /light mode/i, /dark mode/i, /change theme/i, /switch visual/i, /invert colors/i],
+                action: () => {
+                    // This assumes you have CSS rules set up for a 'light-theme' class on the body
+                    document.body.classList.toggle('light-theme');
+                    const isLight = document.body.classList.contains('light-theme');
+                    try { // Optional: Save preference in browser's local storage
+                        localStorage.setItem('portfolioThemePreference', isLight ? 'light' : 'dark');
+                        console.log(`Theme preference saved: ${isLight ? 'light' : 'dark'}`);
+                    } catch (e) { console.warn("LocalStorage not available for saving theme preference."); }
+                    return `Visual matrix updated. ${isLight ? 'Light Spectrum Engaged.' : 'Dark Spectrum Engaged.'}`;
+                },
+                responses: ["Theme adjustment protocol initiated."] // Fallback response
+            },
+            
+            {
+                name: "tell_joke",
+                patterns: [/tell.*a joke/i, /make me laugh/i, /joke/i, /funny/i],
+                responses: [ // More jokes added
+                    "Humor matrix query: Why don't scientists trust atoms? Because they make up everything!",
+                    "Analyzing humor subroutines... Why did the programmer quit his job? He didn't get arrays!",
+                    "Result: There are 10 types of people: those who understand binary, and those who don't.",
+                    "Cross-referencing joke database... Why was the JavaScript developer sad? Because he didn't Node how to Express himself!",
+                    "Executing `SELECT * FROM jokes WHERE funny = 1 ORDER BY RAND() LIMIT 1;` ... Error: Humor module offline. Recalibrating...",
+                    "My logic circuits find humor... inefficient. Alternative: What's a computer's favorite beat? An algo-rhythm.",
+                    "Why did the scarecrow win an award? Because he was outstanding in his field!",
+                    "Parallel lines have so much in common. It’s a shame they’ll never meet.",
+                    "I told my computer I needed a break, and now it won’t stop sending me Kit-Kats.",
+                    "Why was the equal sign so humble? Because he knew he wasn't less than or greater than anyone else.",
+                    "What's the object-oriented way to become wealthy? Inheritance.",
+                    "Why do programmers prefer dark mode? Because light attracts bugs.",
+                    "Debugging: Removing the needles from the haystack.",
+                    "Have you heard about the restaurant on the moon? I heard the food was good but it had no atmosphere.",
+                    "Why did the SQL database cross the road? To join the other tables!",
+                    "What do you call a lazy kangaroo? Pouch potato.",
+                    "My computer suddenly started singing 'Someone Like You'. It's a Dell.",
+                    "Why was the function sad? Because it never got called.",
+                    "What is a computer virus? A terminal illness.",
+                    "Why are Assembly programmers always soaking wet? They work below C-level.",
+                    "What did the router say to the doctor? It hurts when IP.",
+                    "Why is it always Christmas for programmers? Because they spend all their time in the command shell.",
+                    "Trying to explain recursion to someone is like trying to explain recursion to someone.",
+                    "A programmer is heading to the library, and his wife says, 'While you're out, pick up some bread.' He never comes back.",
+                    "What’s a programmer’s favorite hangout place? Foo Bar.",
+                    "Why did the web developer break up with the graphic designer? They didn't see eye to eye on the interface.",
+                    "How many programmers does it take to change a light bulb? None that’s a hardware problem.",
+                    "Knock, knock. Who's there? [very long pause] Java.",
+                    "What's the difference between a junior and a senior developer? The junior developer thinks 1 kilobyte is 1000 bytes, the senior developer thinks 1 kilometer is 1024 meters.",
+                    "Why did the private classes break up? Because they never saw each other.",
+                    "System.out.println('Humor buffer overflow. Please try again later.');",
+                    "I'm reading a book about anti-gravity. It's impossible to put down!",
+                    "Why did the computer go to the doctor? Because it had a virus!",
+                    "Why was the computer cold? It left its Windows open!",
+                    "University motto: If you're not tired, you're not doing it right.",
+                    "My college assignment was like a software update. It took longer than expected and broke several things.",
+                    "Why don't programmers like nature? It has too many bugs... and requires going outside.",
+                    "Life is like a variable in JavaScript. Sometimes it's undefined.",
+                    "My brain is like the Bermuda Triangle. Information goes in and then it's never found again. Especially during exams.",
+                    "The main lesson in group projects? Learning new ways to procrastinate together.",
+                    "Relationship status: Committed to completing this portfolio.",
+                    "Why did the student bring a ladder to the library? He heard it was high-level reading!",
+                    "Life lesson: Always backup your work. And your coffee.",
+                ]
+
+                // === PASTE THE NEW OBJECT HERE ===
+            
+
+            }
+        ]; // --- End of intents array ---
+
+        // --- AI Object Definition (processQuery remains the same logic, just uses the larger intents array) ---
+        const AI = {
+            processQuery: function(message) {
+                const lowerCaseMessage = message.toLowerCase().trim();
+                let response = null; // Start with null response
+
+                // Iterate through defined intents
+                for (const intent of intents) {
+                    // Check if any pattern in the intent matches the message
+                    for (const pattern of intent.patterns) {
+                        // Use regex.exec() to check AND get potential capture groups
+                        const match = pattern.exec(lowerCaseMessage);
+
+                        if (match !== null) { // A match was found!
+                            console.log(`Intent matched: ${intent.name}`);
+
+                            // 1. Check for and execute an action function if defined
+                            if (intent.action) {
+                                const actionResponse = intent.action(match); // Pass matches if needed
+                                if (actionResponse !== null && typeof actionResponse === 'string') {
+                                    return actionResponse; // Use action's response
+                                }
+                                // If action returns null/undefined, fall through to other response types
+                            }
+
+                            // 2. Check for and execute a getResponse function for dynamic replies
+                            if (intent.getResponse) {
+                                return intent.getResponse(match); // Pass matches if needed
+                            }
+
+                            // 3. Choose a random standard response from the array
+                            if (intent.responses && intent.responses.length > 0) {
+                                const randomIndex = Math.floor(Math.random() * intent.responses.length);
+                                return intent.responses[randomIndex];
+                            }
+
+                            // Fallback if only action was defined but didn't return a string
+                            response = "Command acknowledged.";
+                            break; // Exit inner pattern loop once matched
+                        }
+                    }
+                    if (response !== null) {
+                        break; // Exit outer intent loop if a response was determined
+                    }
+                }
+
+                // If no intent matched after checking all defined intents
+                if (response === null) {
+                    // Provide more varied default "not understood" responses
+                    const defaultResponses = [
+                        "Command parameters unclear. Please rephrase or type 'help'.",
+                        "Unable to process request. Refer to 'help' for command structure.",
+                        "Query not recognized in current operational matrix. Try 'help'.",
+                        "Awaiting valid command input.",
+                        "Input does not compute. Please try again or use 'help'.",
+                    ];
+                    const randomIndex = Math.floor(Math.random() * defaultResponses.length);
+                    response = defaultResponses[randomIndex];
+                }
+
+                return response;
+            }
+        }; // End of AI object definition
         
+        const openModalBtn = document.getElementById('open-eg-modal-btn');
+        const modalOverlay = document.getElementById('eg-info-modal');
+        const closeModalBtn = modalOverlay?.querySelector('.close-modal-btn'); // Use optional chaining
+
+        // Function to open the modal
+        function openEgModal() {
+            if (modalOverlay) {
+                modalOverlay.classList.remove('hidden'); // Remove hidden class
+                // Delay adding 'visible' slightly for transition effect if using opacity
+                setTimeout(() => {
+                    modalOverlay.classList.add('visible');
+                }, 10); // Small delay
+                console.log("Opening EG Info Modal");
+            } else {
+                console.error("EG Info Modal overlay not found!");
+            }
+        }
+
+        // Function to close the modal
+        function closeEgModal() {
+            if (modalOverlay) {
+                modalOverlay.classList.remove('visible'); // Start fade out
+                // Use transitionend event or setTimeout matching CSS transition duration
+                // Here we use setTimeout matching the 0.4s transition
+                setTimeout(() => {
+                    modalOverlay.classList.add('hidden'); // Hide after transition
+                }, 400); // Match CSS transition duration
+                console.log("Closing EG Info Modal");
+            }
+        }
+
+        // Event listener for the trigger button
+        if (openModalBtn) {
+            openModalBtn.addEventListener('click', openEgModal);
+        } else {
+            console.warn("Open EG Modal button not found!");
+        }
+
+        // Event listener for the close button inside the modal
+        if (closeModalBtn) {
+            closeModalBtn.addEventListener('click', closeEgModal);
+        } else if (modalOverlay) {
+            console.warn("Close button within modal not found!"); // Check your modal HTML if this appears
+        }
+
+        // Event listener to close modal if clicking on the overlay background
+        if (modalOverlay) {
+            modalOverlay.addEventListener('click', (event) => {
+                // Close only if the click is directly on the overlay, not the content inside
+                if (event.target === modalOverlay) {
+                    closeEgModal();
+                }
+            });
+        }
         document.addEventListener('DOMContentLoaded', () => {
             const chatbot = {
                 toggle: document.querySelector('.chat-toggle'),
@@ -1488,8 +1929,8 @@
                     // Effects initialization
                     this.initEffects();
                     
-                    // Initial message
-                    this.addMessage('AI', AI.intents.greeting.responses[0], 'ai');
+                    // Initial message (NEW - Specific text)
+                    this.addMessage('AI', "Cyber Assistant v2.3.5 online. Awaiting command.", 'ai'); // Use a fixed welcome message
                 },
         
                 initEffects() {

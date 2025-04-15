@@ -22,6 +22,14 @@ The primary goal is to provide an **interactive and professional space** where v
 
 ---
 
+## 🎬 Portfolio Video Overview
+
+Click the thumbnail below to watch a quick video tour of my portfolio website:
+
+[![Watch My Portfolio Video](https://www.google.com/search?q=https://www.youtube.com/watch%3Fv%3DclnpIjp5r881)](https://www.youtube.com/watch?v=clnpIjp5r886 "My Portal Pedro Fabian #html #css #website #programming")
+
+---
+
 ## ✨ Key Features
 
 ✔ **Modern & Custom Design:** A unique, user-friendly interface built for aesthetics and optimized performance.

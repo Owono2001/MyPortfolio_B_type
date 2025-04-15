@@ -26,7 +26,7 @@ The primary goal is to provide an **interactive and professional space** where v
 
 Click the thumbnail below to watch a quick video tour of my portfolio website:
 
-[![Watch My Portfolio Video](https://www.google.com/search?q=https://www.youtube.com/watch%3Fv%3DclnpIjp5r881)](https://www.youtube.com/watch?v=clnpIjp5r886 "My Portal Pedro Fabian #html #css #website #programming")
+[[![Watch My Portfolio Video](https://www.google.com/search?q=https://www.youtube.com/watch%3Fv%3DclnpIjp5r881)](https://www.youtube.com/watch?v=clnpIjp5r886 "My Portal Pedro Fabian #html #css #website #programming")](https://github.com/user-attachments/assets/71f442a0-72f7-4b7f-9262-e91e6b10826f)
 
 ---
 
